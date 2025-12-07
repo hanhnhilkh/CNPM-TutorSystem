@@ -3,6 +3,7 @@ import { getEvaluationsByTutor, getEvaluationById } from './evaluations.controll
 
 const router = Router();
 
+router.get('/', getEvaluationsByTutor);
 router.get('/:id', getEvaluationById);
 
 export default router;

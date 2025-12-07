@@ -17,7 +17,7 @@ export function TutorDashboard({ onNavigate, onLogout }: TutorDashboardProps) {
   const [upcomingRequests, setUpcomingRequests] = useState<UpcomingRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const tutorId = '1'; // ID Giảng viên giả lập
+  const tutorId = 'tutor-1'; // ID Giảng viên giả lập
 
   useEffect(() => {
     const fetchData = async () => {
