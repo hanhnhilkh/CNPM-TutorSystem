@@ -10,6 +10,8 @@ import scheduleRoutes from './features/schedule/schedule.route';
 import searchRoutes from './features/search/search.route';
 import evaluationsRoutes from './features/evaluations/evaluations.route'; // Import new evaluations route
 import databaseRoutes from './features/admin/database/database.route';
+import analyticsRoutes from './features/admin/analytics/analytics.route';
+import dataSyncRoutes from './features/admin/dataSync/dataSync.route';
 
 // Initialize Express app
 const app: Express = express();
@@ -35,6 +37,8 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/schedule', scheduleRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/evaluations', evaluationsRoutes); // Mount new evaluations route
+app.use('/api/admin', analyticsRoutes);
+app.use('/api/admin/sync', dataSyncRoutes);
 app.use('/api/admin/database', databaseRoutes);
 
 // Start the server

@@ -47,6 +47,12 @@ const convertVnToEnDayName = (vnDayName: string): string | null => {
 };
 
 const convertSlotToHours = (slot: string): string[] => {
+  // Nếu slot không có dấu '-', nó là single hour (ví dụ: "07:00")
+  if (!slot.includes('-')) {
+    return [slot];
+  }
+
+  // Nếu có dấu '-', parse range (ví dụ: "09:00-11:00")
   const [start, end] = slot.split('-');
   const hours: string[] = [];
 
@@ -105,6 +111,13 @@ export const getScheduleForTutor = async (
     const calendar: CalendarDay[] = weekDates.map(dayInfo => {
       const scheduleEntry = schedule.find((item: any) => item.day === dayInfo.engDay);
       const availableSlots = scheduleEntry ? scheduleEntry.slots : [];
+      
+      // Convert all slots (including ranges like "09:00-11:00") to individual hours
+      const expandedAvailableHours: string[] = [];
+      availableSlots.forEach((slot: string) => {
+        const hours = convertSlotToHours(slot);
+        expandedAvailableHours.push(...hours);
+      });
 
       const hours: CalendarHour[] = ALL_HOURS.map(hour => {
         const appointment = appointments.find((apt: any) => apt.date === dayInfo.date && apt.time === hour);
@@ -118,7 +131,7 @@ export const getScheduleForTutor = async (
             studentName: appointment.studentName,
             tutorName: appointment.tutorName,
           };
-        } else if (availableSlots.includes(hour)) {
+        } else if (expandedAvailableHours.includes(hour)) {
           slot = {
             id: `${tutorId}-${dayInfo.date}-${hour}`,
             status: 'available',
@@ -149,16 +162,23 @@ export const getScheduleForStudent = async (
 
   // Logic to create calendar data remains the same
   const weekDates = [
-    { day: 'Thứ 2', date: '2025-11-10' },
-    { day: 'Thứ 3', date: '2025-11-11' },
-    { day: 'Thứ 4', date: '2025-11-12' },
-    { day: 'Thứ 5', date: '2025-11-13' },
-    { day: 'Thứ 6', date: '2025-11-14' },
-    { day: 'Thứ 7', date: '2025-11-15' },
-    { day: 'Chủ Nhật', date: '2025-11-16' },
+    { day: 'Thứ 2', date: '2025-11-17' },
+    { day: 'Thứ 3', date: '2025-11-18' },
+    { day: 'Thứ 4', date: '2025-11-19' },
+    { day: 'Thứ 5', date: '2025-11-20' },
+    { day: 'Thứ 6', date: '2025-11-21' },
+    { day: 'Thứ 7', date: '2025-11-22' },
+    { day: 'Chủ Nhật', date: '2025-11-23' },
   ];
 
-  const workHours = ['17:00', '18:00', '19:00', '20:00', '21:00', '22:00'];
+  // Lấy tất cả các giờ từ appointments, sau đó thêm các giờ khác nếu cần
+  const appointmentHours = appointments
+    .map((apt: any) => apt.time)
+    .filter((time: string, index: number, arr: string[]) => arr.indexOf(time) === index) // Remove duplicates
+    .sort();
+
+  // Nếu không có appointments, hiển thị các giờ làm việc mặc định
+  const workHours = appointmentHours.length > 0 ? appointmentHours : ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'];
 
   const calendar: CalendarDay[] = weekDates.map(dayInfo => {
     const hours: CalendarHour[] = workHours.map(hour => {

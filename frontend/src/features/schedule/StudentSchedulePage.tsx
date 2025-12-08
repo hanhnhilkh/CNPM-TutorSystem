@@ -81,7 +81,7 @@ export function StudentSchedulePage({ userRole, onNavigate, onGoBack }: StudentS
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <CalendarIcon className="w-5 h-5 text-[#003366]" />
-                  <h2 className="text-[#003366]">Lịch tuần (11/11 - 17/11/2025)</h2>
+                  <h2 className="text-[#003366]">Lịch tuần (17/11 - 23/11/2025)</h2>
                 </div>
                 <div className="flex gap-4 text-sm">
                   <div className="flex items-center gap-2"><div className="w-4 h-4 bg-red-100 border border-red-300 rounded"></div><span className="text-gray-600">Đã ghi danh</span></div>

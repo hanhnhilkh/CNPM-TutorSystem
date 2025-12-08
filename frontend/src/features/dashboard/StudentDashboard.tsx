@@ -65,8 +65,14 @@ export function StudentDashboard({ onNavigate, onLogout, onEvaluate, onSelectTut
             <CardContent className="space-y-4">
               {isLoading && <p>Đang tải lịch hẹn...</p>}
               {!isLoading && upcomingAppointments.length > 0 ? (
-                upcomingAppointments.map(session => (
-                  <div key={session.id} className="bg-gradient-to-r from-[#003366] to-[#0099CC] rounded-xl p-6 text-white">
+                [...upcomingAppointments]
+                  .sort((a, b) => {
+                    const dateCompare = new Date(b.date).getTime() - new Date(a.date).getTime();
+                    if (dateCompare !== 0) return dateCompare; // Xếp theo ngày trước
+                    return a.time.localeCompare(b.time); // Nếu cùng ngày, xếp theo giờ
+                  })
+                  .map(session => (
+                    <div key={session.date} className="bg-gradient-to-r from-[#003366] to-[#0099CC] rounded-xl p-6 text-white">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-3">

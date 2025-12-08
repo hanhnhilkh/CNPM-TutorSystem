@@ -33,7 +33,7 @@ export const AnalyticsDashboard: React.FC = () => {
     }, []);
 
     if (isLoading) {
-        return <div>Loading analytics...</div>;
+        return <div>Đang tải...</div>;
     }
 
     if (error) {
@@ -41,58 +41,61 @@ export const AnalyticsDashboard: React.FC = () => {
     }
 
     return (
-        <div className="space-y-8">
-            <div className="grid gap-4 md:grid-cols-3">
+        <div className="flex flex-col space-y-4">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Total Users</CardTitle>
+                        <CardTitle>Tổng số người dùng</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{stats?.totalUsers}</div>
                     </CardContent>
                 </Card>
+
                 <Card>
                     <CardHeader>
-                        <CardTitle>Total Appointments</CardTitle>
+                        <CardTitle>Tổng số cuộc hẹn</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{stats?.totalAppointments}</div>
                     </CardContent>
                 </Card>
+
                 <Card>
                     <CardHeader>
-                        <CardTitle>Average Rating</CardTitle>
+                        <CardTitle>Đánh giá trung bình</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{stats?.averageRating}</div>
                     </CardContent>
                 </Card>
-            </div>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Academic Report</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Department</TableHead>
-                                <TableHead>Total Sessions</TableHead>
-                                <TableHead>Average Rating</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {report?.map((row) => (
-                                <TableRow key={row.departmentName}>
-                                    <TableCell>{row.departmentName}</TableCell>
-                                    <TableCell>{row.totalSessions}</TableCell>
-                                    <TableCell>{row.avgRating}</TableCell>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>
+                            <div className="text-1 font-bold">Thống kê cuộc hẹn và đánh giá</div>
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Khoa</TableHead>
+                                    <TableHead>Tổng số cuộc hẹn</TableHead>
+                                    <TableHead>Đánh giá trung bình</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
+                            </TableHeader>
+                            <TableBody> 
+                                {report?.map((row) => (
+                                    <TableRow key={row.departmentName}>
+                                        <TableCell>{row.departmentName}</TableCell>
+                                        <TableCell>{row.totalSessions}</TableCell>
+                                        <TableCell>{row.avgRating}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
         </div>
     );
 };

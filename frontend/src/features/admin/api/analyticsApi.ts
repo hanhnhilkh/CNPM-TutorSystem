@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { DashboardStats, AcademicReport } from '@/types/adminTypes';
+import { DashboardStats, AcademicReport } from '../../../types/adminTypes';
 
 const API_URL = 'http://localhost:3001/api/admin';
 
