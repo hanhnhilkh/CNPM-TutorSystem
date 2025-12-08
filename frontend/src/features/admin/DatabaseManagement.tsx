@@ -41,7 +41,7 @@ export const DatabaseManagement: React.FC = () => {
                                 className="h-auto py-6 flex flex-col items-center gap-0 hover:bg-blue-50"
                             >
                                 <span className="text-2xl"></span>
-                                <span>Quản lí giảng viên</span>
+                                <span>Quản lí Tutor </span>
                             </Button>
                             <Button 
                                 variant="outline" 

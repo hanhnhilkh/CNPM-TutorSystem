@@ -31,7 +31,7 @@ export const DocumentManagement: React.FC = () => {
     const [editingDocument, setEditingDocument] = useState<Document | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [showActions, setShowActions] = useState(false);
+    const [showActions] = useState(false);
 
     useEffect(() => {
         fetchDocuments();
@@ -143,13 +143,17 @@ export const DocumentManagement: React.FC = () => {
     // };
 
     if (isLoading) {
-        return <div className="text-center py-8">Loading documents...</div>;
+        return <div className="text-center py-8">Đang tải tài liệu...</div>;
     }
 
     return (
         <div className="space-y-4">
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold">Quản lý tài liệu</h2>
+            </div>
+
             {/* Search Bar */}
-            <div className="flex gap-2 items-end">
+            <div className="flex gap-5 items-end">
                 <div className="flex-1">
                     <Label className="text-sm font-medium text-gray-700 mb-2 block">Tìm kiếm tài liệu theo tên người dùng</Label>
                     <div className="relative">
@@ -163,14 +167,14 @@ export const DocumentManagement: React.FC = () => {
                         />
                     </div>
                 </div>
-                <Button
+                {/* <Button
                     variant={showActions ? "default" : "outline"}
                     size="sm"
                     onClick={() => setShowActions(!showActions)}
                     className={showActions ? "bg-[#003366] hover:bg-[#004488]" : ""}
                 >
-                    {showActions ? "✓ Hiện hành động" : "🔧 Hiện hành động"}
-                </Button>
+                    {showActions ? "✓ Hiện hành động" : "Hiện hành động"}
+                </Button> */}
             </div>
 
             {/* Results Summary */}
@@ -209,9 +213,9 @@ export const DocumentManagement: React.FC = () => {
                                 <TableHead className="font-semibold text-gray-700 py-3 px-4">Kích thước</TableHead>
                                 <TableHead className="font-semibold text-gray-700 py-3 px-4">Ngày tải lên</TableHead>
                                 <TableHead className="font-semibold text-gray-700 py-3 px-4">Độ hiển thị</TableHead>
-                                {showActions && (
+                                {/* {showActions && ( */}
                                     <TableHead className="font-semibold text-gray-700 py-3 px-4 text-right">Hành động</TableHead>
-                                )}
+                                {/* )} */}
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -241,7 +245,7 @@ export const DocumentManagement: React.FC = () => {
                                             {doc.visibility === 'public' ? 'Công khai' : 'Riêng tư'}
                                         </Badge>
                                     </TableCell>
-                                    {showActions && (
+                                    {(!showActions) && (
                                         <TableCell className="py-3 px-4 text-right">
                                             <div className="flex gap-2 justify-end flex-wrap">
                                                 <Dialog>
@@ -252,7 +256,7 @@ export const DocumentManagement: React.FC = () => {
                                                             title="Xem chi tiết"
                                                             className="h-8"
                                                         >
-                                                            👁️
+                                                            Xem
                                                         </Button>
                                                     </DialogTrigger>
                                                     <DialogContent className="max-w-md">
@@ -285,7 +289,7 @@ export const DocumentManagement: React.FC = () => {
                                                             <div>
                                                                 <Label className="text-xs text-gray-600">Độ hiển thị</Label>
                                                                 <Badge className={doc.visibility === 'public' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
-                                                                    {doc.visibility === 'public' ? '🌐 Công khai' : '🔒 Riêng tư'}
+                                                                    {doc.visibility === 'public' ? 'Công khai' : 'Riêng tư'}
                                                                 </Badge>
                                                             </div>
                                                             <div>
@@ -298,7 +302,7 @@ export const DocumentManagement: React.FC = () => {
                                                     </DialogContent>
                                                 </Dialog>
 
-                                                <Button
+                                                {/* <Button
                                                     variant="outline"
                                                     size="sm"
                                                     onClick={() => handleDownload(doc)}
@@ -307,8 +311,8 @@ export const DocumentManagement: React.FC = () => {
                                                 >
                                                     <Download className="h-4 w-4" />
                                                 </Button>
-
-                                                <Button
+ */}
+                                                {/* <Button
                                                     variant="outline"
                                                     size="sm"
                                                     onClick={() => handleShare(doc)}
@@ -316,9 +320,9 @@ export const DocumentManagement: React.FC = () => {
                                                     className={`h-8 ${doc.visibility === 'public' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}
                                                 >
                                                     <Share2 className="h-4 w-4" />
-                                                </Button>
+                                                </Button> */}
 
-                                                <Button
+                                                {/* <Button
                                                     variant="outline"
                                                     size="sm"
                                                     onClick={() => handlePin(doc)}
@@ -337,7 +341,7 @@ export const DocumentManagement: React.FC = () => {
                                                 >
                                                     <Archive className="h-4 w-4" />
                                                 </Button>
-
+ */}
                                                 <Button
                                                     variant="destructive"
                                                     size="sm"

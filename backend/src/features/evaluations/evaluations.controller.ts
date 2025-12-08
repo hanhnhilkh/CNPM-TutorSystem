@@ -23,21 +23,48 @@ export const getEvaluationsByTutor = (req: Request, res: Response) => {
 };
 
 export const getEvaluationById = (req: Request, res: Response) => {
-    const {evalId} = req.query;
+    const { evalId } = req.query;
 
     if (!evalId) {
-         return res.status(400).json({ message: 'evalId is required' });
+        return res.status(400).json({ message: 'evalId is required' });
     }
 
     try {
         const evaluation = evaluationsService.getEvaluationById(evalId as string);
-        if(!evaluation) {
-            return res.status(404).json({message: 'No evaluation by this Id'});
+        if (!evaluation) {
+            return res.status(404).json({ message: 'No evaluation by this Id' });
         }
 
         return res.status(200).json(evaluation);
     }
     catch (error: any) {
-        return res.status(500).json({ message: error.message }); 
+        return res.status(500).json({ message: error.message });
+    }
+}
+
+export const createEvaluation = (req: Request, res: Response) => {
+    const { sessionId, tutorId, studentId, rating, comment } = req.body;
+
+    if (!sessionId || !tutorId || !studentId || rating === undefined) {
+        return res.status(400).json({
+            message: 'sessionId, tutorId, studentId, and rating are required'
+        });
+    }
+
+    try {
+        const newEvaluation = evaluationsService.createEvaluation({
+            sessionId,
+            tutorId,
+            studentId,
+            rating,
+            comment: comment || ''
+        } as any);
+
+        return res.status(201).json({
+            message: 'Evaluation created successfully',
+            evaluation: newEvaluation
+        });
+    } catch (error: any) {
+        return res.status(500).json({ message: error.message });
     }
 }

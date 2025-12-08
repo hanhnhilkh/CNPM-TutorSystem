@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { DashboardStats, AcademicReport } from '../../../types/adminTypes';
 
 const API_URL = 'http://localhost:3001/api/admin';
@@ -8,8 +7,14 @@ const API_URL = 'http://localhost:3001/api/admin';
  * @returns Các chỉ số chính: tổng người dùng, tổng lịch hẹn, rating trung bình.
  */
 export const getDashboardStats = async (): Promise<DashboardStats> => {
-  const response = await axios.get<DashboardStats>(`${API_URL}/stats`);
-  return response.data;
+  try {
+    const response = await fetch(`${API_URL}/stats`);
+    if (!response.ok) throw new Error('Failed to fetch dashboard stats');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    throw error;
+  }
 };
 
 /**
@@ -17,6 +22,12 @@ export const getDashboardStats = async (): Promise<DashboardStats> => {
  * @returns Một mảng các đối tượng báo cáo cho mỗi khoa.
  */
 export const getAcademicReport = async (): Promise<AcademicReport[]> => {
-    const response = await axios.get<AcademicReport[]>(`${API_URL}/academic-report`);
-    return response.data;
+  try {
+    const response = await fetch(`${API_URL}/academic-report`);
+    if (!response.ok) throw new Error('Failed to fetch academic report');
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching academic report:', error);
+    throw error;
+  }
 };

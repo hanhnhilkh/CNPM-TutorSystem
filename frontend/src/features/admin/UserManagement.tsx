@@ -60,21 +60,21 @@ export const UserManagement: React.FC = () => {
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold">Quản trị người dùng</h2>
+                <h2 className="text-lg font-semibold">Quản lý người dùng</h2>
             </div>
 
             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-sm font-semibold">Total Users: {users.length}</h3>
+                <h3 className="text-sm text-gray-600">Tổng số người dùng: <strong>{users.length}</strong></h3>
             </div>
 
             <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
                 <Table>
                     <TableHeader className="bg-gradient-to-r from-gray-50 to-gray-100 border-b">
                         <TableRow>
-                            <TableHead className="font-semibold text-gray-700 py-3 px-4">Name</TableHead>
+                            <TableHead className="font-semibold text-gray-700 py-3 px-4">Tên</TableHead>
                             <TableHead className="font-semibold text-gray-700 py-3 px-4">Email</TableHead>
-                            <TableHead className="font-semibold text-gray-700 py-3 px-4">Role</TableHead>
-                            <TableHead className="font-semibold text-gray-700 py-3 px-5 text-right">Actions</TableHead>
+                            <TableHead className="font-semibold text-gray-700 py-3 px-4">Vai trò</TableHead>
+                            <TableHead className="font-semibold text-gray-700 py-3 px-4 text-justify-center">Hành động</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -100,16 +100,16 @@ export const UserManagement: React.FC = () => {
                                             <Button variant="outline" size="sm" onClick={() => {
                                                 setEditingUser(user);
                                                 setIsDialogOpen(true);
-                                            }}>Edit</Button>
+                                            }}>Chỉnh sửa</Button>
                                         </DialogTrigger>
                                         <DialogContent>
                                             <DialogHeader>
-                                                <DialogTitle>Edit User</DialogTitle>
+                                                <DialogTitle>Chỉnh sửa người dùng</DialogTitle>
                                             </DialogHeader>
                                             {editingUser && (
                                                 <div className="space-y-4 max-h-96 overflow-y-auto pr-4">
                                                     <div>
-                                                        <Label htmlFor="name">Name</Label>
+                                                        <Label htmlFor="name">Tên</Label>
                                                         <Input
                                                             id="name"
                                                             value={editingUser.name || ''}
@@ -126,27 +126,27 @@ export const UserManagement: React.FC = () => {
                                                         />
                                                     </div>
                                                     <div>
-                                                        <Label htmlFor="role">Role</Label>
+                                                        <Label htmlFor="role">Vai trò</Label>
                                                         <Select value={editingUser.role} onValueChange={(value) => setEditingUser({ ...editingUser, role: value })}>
                                                             <SelectTrigger id="role">
                                                                 <SelectValue />
                                                             </SelectTrigger>
-                                                            <SelectContent>
-                                                                <SelectItem value="student">Student</SelectItem>
-                                                                <SelectItem value="tutor">Tutor</SelectItem>
-                                                                <SelectItem value="admin">Admin</SelectItem>
+                                                            <SelectContent className="w-full bg-white rounded-md shadow-md">
+                                                                <SelectItem value="student" className="grid grid-cols-[2px_1fr] place-items-right px-3 py-1">Student</SelectItem>
+                                                                <SelectItem value="tutor" className="grid grid-cols-[2px_1fr] place-items-right px-3 py-1">Tutor</SelectItem>
+                                                                <SelectItem value="admin" className="grid grid-cols-[2px_1fr] place-items-right px-3 py-1">Admin</SelectItem>
                                                             </SelectContent>
                                                         </Select>
                                                     </div>
-                                                    <div className="flex gap-2 justify-end pt-4 border-t">
-                                                        <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                                                        <Button onClick={handleUpdateUser}>Save</Button>
+                                                    <div className="flex gap-2 justify-end pt-4">
+                                                        <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Hủy</Button>
+                                                        <Button onClick={handleUpdateUser}>Lưu</Button>
                                                     </div>
                                                 </div>
                                             )}
                                         </DialogContent>
                                     </Dialog>
-                                    <Button variant="destructive" size="sm" onClick={() => handleDeleteUser(user.id)}>Delete</Button>
+                                    <Button variant="destructive" size="sm" onClick={() => handleDeleteUser(user.id)}>Xóa</Button>
                                 </TableCell>
                             </TableRow>
                         ))}

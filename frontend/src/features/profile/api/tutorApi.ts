@@ -1,57 +1,49 @@
-import { UpcomingRequest, TutorStats } from '../../../types';
+import { UpcomingRequest, TutorStats, Session } from '../../../types';
 
 const API_URL = 'http://localhost:3001';
 
 /**
  * Lấy dữ liệu cho trang chủ của giảng viên.
  */
-export const getTutorDashboardData = async (tutorId: string): Promise<{ stats: TutorStats; requests: UpcomingRequest[] }> => {
-  const appointmentsRes = await fetch(`${API_URL}/api/schedule/appointments?tutorId=${tutorId}&status=booked&_sort=date&_order=asc`);
-  const appointments = await appointmentsRes.json();
+export const getTutorDashboardData = async (tutorId: string): Promise<{
+  stats: TutorStats;
+  upcomingAppointments: Session[];
+  bookedRequests: Session[];
+}> => {
+  // Lấy tất cả appointments của tutor
+  const appointmentsRes = await fetch(`${API_URL}/api/booking?tutorId=${tutorId}&_sort=date&_order=asc`);
+  const allAppointments: Session[] = await appointmentsRes.json();
 
-  const evaluationsRes = await fetch(`${API_URL}/api/evaluations?tutorId=${tutorId}`);
-  const evaluations = await evaluationsRes.json();
+  // Lấy tutor info từ admin database API để lấy rating
+  const tutorRes = await fetch(`${API_URL}/api/admin/database/users/${tutorId}`);
+  const tutor = await tutorRes.json();
+
+  // Tách booked và upcoming appointments
+  const bookedAppointments = allAppointments.filter(a => a.status === 'booked');
+  const upcomingAppointments = allAppointments.filter(a => a.status === 'upcoming');
 
   // Tính toán các chỉ số
-  const totalSessions = appointments.length;
-  const upcomingSessions = appointments.filter((a: any) => a.status === 'booked' || a.status === 'available');
-  const upcomingSessionsCount = upcomingSessions.length;
-  const totalStudents = new Set(appointments.map((a: any) => a.studentId).filter(Boolean)).size;
-  const averageRating = evaluations.length > 0
-    ? (evaluations.reduce((sum: number, e: { rating: number }) => sum + e.rating, 0) / evaluations.length).toFixed(1)
-    : 0;
+  // Tổng buổi hẹn = upcoming + ongoing (những buổi đã được xác nhận và đang hoặc sắp diễn ra)
+  const totalSessionsCount = allAppointments.filter(a => a.status === 'upcoming' || a.status === 'ongoing').length;
+
+  // Sinh viên unique (chỉ từ upcoming + ongoing appointments)
+  const upcomingAndOngoingAppointments = allAppointments.filter(a => a.status === 'upcoming' || a.status === 'ongoing');
+  const totalStudents = new Set(
+    upcomingAndOngoingAppointments
+      .map(a => a.studentId)
+      .filter(Boolean)
+  ).size;
+
+  // Đánh giá TB - lấy từ tutor profile
+  const averageRating = tutor.rating || 0;
 
   const stats: TutorStats = {
-    totalSessions: totalSessions,
-    upcomingSessions: upcomingSessionsCount,
+    totalSessions: totalSessionsCount,
+    upcomingSessions: upcomingAppointments.length,
     totalStudents,
-    totalAppointments: totalSessions,
-    averageRating: Number(averageRating)
+    totalAppointments: allAppointments.length,
+    averageRating
   };
 
-  const requests: UpcomingRequest[] = upcomingSessions.map((appointment: any) => ({
-    id: appointment.id,
-    studentName: appointment.studentName,
-    subject: appointment.subject,
-    date: appointment.date,
-    time: appointment.time,
-    type: appointment.type as 'online' | 'offline',
-  }));
-
-  // // Lấy yêu cầu từ buổi hẹn gần nhất
-  // const nextAppointment = appointments[0];
-  // const requests: UpcomingRequest[] = [];
-
-  // if (nextAppointment) {
-  //   requests.push({
-  //     id: nextAppointment.id,
-  //     studentName: nextAppointment.studentName,
-  //     subject: nextAppointment.subject,
-  //     date: nextAppointment.date,
-  //     time: nextAppointment.time,
-  //     type: nextAppointment.type as 'online' | 'offline',
-  //   });
-  // }
-
-  return { stats, requests };
+  return { stats, upcomingAppointments, bookedRequests: bookedAppointments };
 };

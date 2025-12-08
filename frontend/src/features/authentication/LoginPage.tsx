@@ -90,7 +90,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
             <div className="w-6 h-6 bg-white/20 rounded flex items-center justify-center text-sm">
               BK
             </div>
-            <span>{isLoading ? 'Đang tải...' : 'Đăng nhập qua HCMUT-SSO'}</span>  
+            <span>{isLoading ? 'Đang tải...' : 'Đăng nhập qua HCMUT-SSO'}</span>
           </div>
         </Button>
 

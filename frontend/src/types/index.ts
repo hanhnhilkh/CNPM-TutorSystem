@@ -36,7 +36,14 @@ export type Session = {
   date: string;
   time: string;
   type?: 'online' | 'offline';
-  status: 'upcoming' | 'completed' | 'available' | 'booked';
+  status: 'booked' | 'upcoming' | 'ongoing' | 'completed' | 'evaluated' | 'cancelled';
+  // booked: Student đặt lịch, tutor chưa nhấn xác nhận
+  // upcoming: Tutor đã xác nhận, chưa ai nhấn Tham gia
+  // ongoing: 1 trong 2 bên đã nhấn Tham gia
+  // completed: cả 2 bên đã nhấn Tham gia
+  // evaluated: buổi hẹn đã được đánh giá
+  // cancelled: 1 trong 2 bên hủy buổi hẹn
+  evaluationId?: string;
 };
 
 export type CalendarDay = {
@@ -53,7 +60,7 @@ export type CalendarHour = {
 export type CalendarSlot = {
   id: string;
   subject: string; // Đổi 'title' thành 'subject' cho nhất quán
-  status: 'available' | 'booked' | 'personal';
+  status: 'available' | 'booked' | 'personal' | 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
   studentName?: string;
   tutorName?: string;
 };

@@ -79,6 +79,26 @@ export const cancelAppointment = (req: Request, res: Response) => {
     });
 }
 
+export const updateAppointmentStatus = (req: Request, res: Response) => {
+    const { appointmentId } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+        return res.status(400).json({ message: 'Status is required' });
+    }
+
+    const updatedAppointment = bookingService.updateAppointment(appointmentId, { status });
+
+    if (!updatedAppointment) {
+        return res.status(404).json({ message: 'Appointment not found' });
+    }
+
+    return res.status(200).json({
+        message: 'Appointment updated successfully',
+        appointment: updatedAppointment
+    });
+}
+
 export const freeSlot = (req: Request, res: Response) => {
     const { tutorId, day, hour } = req.query;
 

@@ -247,9 +247,9 @@
       "studentId": "student-1",
       "studentName": "Nguyễn Văn An",
       "subject": "Review Đồ án KTPM",
-      "date": "2025-10-25",
+      "date": "2025-11-18",
       "time": "14:00",
-      "status": "completed",
+      "status": "upcoming",
       "type": "online",
       "evaluationId": "eval-1"
     },
@@ -260,9 +260,9 @@
       "studentId": "student-1",
       "studentName": "Nguyễn Văn An",
       "subject": "Thảo luận về mô hình AI",
-      "date": "2025-11-28",
+      "date": "2025-11-20",
       "time": "10:00",
-      "status": "booked",
+      "status": "upcoming",
       "type": "offline"
     },
     {
@@ -385,7 +385,7 @@
       "subject": "Hỏi về an toàn phòng thí nghiệm",
       "date": "2025-11-18",
       "time": "14:00",
-      "status": "completed",
+      "status": "upcoming",
       "type": "offline",
       "evaluationId": "eval-5"
     },
@@ -398,7 +398,7 @@
       "subject": "Câu hỏi về assignment",
       "date": "2025-11-05",
       "time": "10:00",
-      "status": "booked",
+      "status": "evaluated",
       "type": "online"
     },
     {
@@ -431,10 +431,10 @@
       "studentId": "student-1",
       "studentName": "Nguyễn Văn A",
       "subject": "Review mạch điện tử",
-      "date": "2025-11-15",
+      "date": "2025-11-17",
       "time": "09:30",
       "type": "offline",
-      "status": "booked",
+      "status": "evaluated",
       "id": "apt-1764513027864"
     },
     {
@@ -446,7 +446,7 @@
       "date": "2025-10-15",
       "time": "10:00",
       "type": "offline",
-      "status": "booked",
+      "status": "completed",
       "id": "apt-1764516295388"
     }
   ],
@@ -602,6 +602,22 @@
       "studentId": "student-3",
       "rating": 3,
       "comment": "Thầy giải thích hơi khó hiểu một chút, nhưng vẫn hỗ trợ nhiệt tình."
+    },
+    {
+      "sessionId": "apt-1764513027864",
+      "tutorId": "tutor-6",
+      "studentId": "student-1",
+      "rating": 5,
+      "comment": "thầy 10 điểm",
+      "id": "eval-1765233256954"
+    },
+    {
+      "sessionId": "apt-13",
+      "tutorId": "tutor-1",
+      "studentId": "student-1",
+      "rating": 5,
+      "comment": "thầy cung cấp các thông tin hữu ích ạ",
+      "id": "eval-1765234541719"
     }
   ],
   "tutorSchedule": {

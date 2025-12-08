@@ -89,36 +89,51 @@ export const BookingManagement: React.FC = () => {
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'confirmed':
-                return 'bg-green-100 text-green-800';
-            case 'completed':
+            case 'booked':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'upcoming':
                 return 'bg-blue-100 text-blue-800';
+            case 'ongoing':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'completed':
+                return 'bg-green-100 text-green-800';
+            case 'evaluated':
+                return 'bg-orange-100 text-purple-800';
             case 'cancelled':
                 return 'bg-red-100 text-red-800';
-            case 'pending':
             default:
-                return 'bg-yellow-100 text-yellow-800';
+                return 'bg-gray-100 text-gray-800';
         }
     };
 
-    const filteredBookings = filterStatus === 'all' 
-        ? bookings 
+    const filteredBookings = filterStatus === 'all'
+        ? bookings
         : bookings.filter(b => b.status === filterStatus);
 
+    const sortedBookings = [...filteredBookings].sort((a, b) => {
+        const dateCompare = new Date(b.date).getTime() - new Date(a.date).getTime();
+        if (dateCompare !== 0) return dateCompare; // Xếp theo ngày mới trước
+        return a.time.localeCompare(b.time); // Nếu cùng ngày, xếp theo giờ
+    });
+
     if (isLoading) {
-        return <div className="text-center py-8">Loading bookings...</div>;
+        return <div className="text-center py-8">Đang tải...</div>;
     }
 
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold">Total Bookings: {bookings.length}</h2>
+                <h2 className="text-lg font-semibold">Quản lý cuộc hẹn</h2>
+            </div>
+
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-sm text-gray-600">Tổng số cuộc hẹn: <strong>{bookings.length}</strong></h2>
             </div>
 
             {filteredBookings.length === 0 ? (
                 <div className="text-center py-8 text-gray-500 border rounded-lg bg-gray-50">
-                    <p className="text-lg">📅 No bookings found</p>
-                    <p className="text-sm mt-2">{filterStatus !== 'all' ? `No bookings with status "${filterStatus}"` : 'Start by creating an appointment'}</p>
+                    <p className="text-lg">Không tìm thấy cuộc hẹn</p>
+                    <p className="text-sm mt-2">{filterStatus !== 'all' ? `Không có cuộc hẹn với trạng thái "${filterStatus}"` : 'Bắt đầu bằng cách tạo một cuộc hẹn'}</p>
                 </div>
             ) : (
                 <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
@@ -127,15 +142,15 @@ export const BookingManagement: React.FC = () => {
                             <TableRow>
                                 <TableHead className="font-semibold text-gray-700 py-3 px-4">Student ID</TableHead>
                                 <TableHead className="font-semibold text-gray-700 py-3 px-4">Tutor ID</TableHead>
-                                <TableHead className="font-semibold text-gray-700 py-3 px-4">Subject</TableHead>
-                                <TableHead className="font-semibold text-gray-700 py-3 px-4">Date</TableHead>
-                                <TableHead className="font-semibold text-gray-700 py-3 px-4">Time</TableHead>
-                                <TableHead className="font-semibold text-gray-700 py-3 px-4">Status</TableHead>
-                                <TableHead className="font-semibold text-gray-700 py-3 px-4 text-right">Actions</TableHead>
+                                <TableHead className="font-semibold text-gray-700 py-3 px-4">Môn học</TableHead>
+                                <TableHead className="font-semibold text-gray-700 py-3 px-4">Ngày</TableHead>
+                                <TableHead className="font-semibold text-gray-700 py-3 px-4">Thời gian</TableHead>
+                                <TableHead className="font-semibold text-gray-700 py-3 px-4">Trạng thái</TableHead>
+                                <TableHead className="font-semibold text-gray-700 py-3 px-4 text-justify-center">Hành động</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {filteredBookings.map((booking) => (
+                            {sortedBookings.map((booking) => (
                                 <TableRow key={booking.id} className="border-b hover:bg-gray-50 transition-colors">
                                     <TableCell className="font-medium py-3 px-4 break-words">{booking.studentId}</TableCell>
                                     <TableCell className="py-3 px-4 break-words">{booking.tutorId}</TableCell>
@@ -156,11 +171,11 @@ export const BookingManagement: React.FC = () => {
                                                 <Button variant="outline" size="sm" onClick={() => {
                                                     setEditingBooking(booking);
                                                     setIsDialogOpen(true);
-                                                }}>Edit</Button>
+                                                }}>Chỉnh sửa</Button>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
-                                                    <DialogTitle>Edit Booking</DialogTitle>
+                                                    <DialogTitle>Chỉnh sửa Cuộc hẹn</DialogTitle>
                                                 </DialogHeader>
                                                 {editingBooking && (
                                                     <div className="space-y-4 max-h-96 overflow-y-auto pr-4">
@@ -183,7 +198,7 @@ export const BookingManagement: React.FC = () => {
                                                             />
                                                         </div>
                                                         <div>
-                                                            <label className="block text-sm font-medium mb-1">Subject</label>
+                                                            <label className="block text-sm font-medium mb-1">Môn học</label>
                                                             <input
                                                                 type="text"
                                                                 value={editingBooking.subject || ''}
@@ -192,7 +207,7 @@ export const BookingManagement: React.FC = () => {
                                                             />
                                                         </div>
                                                         <div>
-                                                            <label className="block text-sm font-medium mb-1">Date</label>
+                                                            <label className="block text-sm font-medium mb-1">Ngày</label>
                                                             <input
                                                                 type="date"
                                                                 value={editingBooking.date ? new Date(editingBooking.date).toISOString().split('T')[0] : ''}
@@ -201,7 +216,7 @@ export const BookingManagement: React.FC = () => {
                                                             />
                                                         </div>
                                                         <div>
-                                                            <label className="block text-sm font-medium mb-1">Time</label>
+                                                            <label className="block text-sm font-medium mb-1">Giờ</label>
                                                             <input
                                                                 type="time"
                                                                 value={editingBooking.time || ''}
@@ -210,16 +225,18 @@ export const BookingManagement: React.FC = () => {
                                                             />
                                                         </div>
                                                         <div>
-                                                            <label className="block text-sm font-medium mb-1">Status</label>
+                                                            <label className="block text-sm font-medium mb-1">Trạng thái</label>
                                                             <Select value={editingBooking.status} onValueChange={(value: any) => setEditingBooking({ ...editingBooking, status: value })}>
                                                                 <SelectTrigger>
                                                                     <SelectValue />
                                                                 </SelectTrigger>
-                                                                <SelectContent>
-                                                                    <SelectItem value="pending">Pending</SelectItem>
-                                                                    <SelectItem value="confirmed">Confirmed</SelectItem>
-                                                                    <SelectItem value="completed">Completed</SelectItem>
-                                                                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                                                                <SelectContent className="w-full bg-white rounded-md shadow-md">
+                                                                    <SelectItem value="booked" className="grid grid-cols-[2px_1fr] place-items-right px-3 py-1">Booked</SelectItem>
+                                                                    <SelectItem value="upcoming" className="grid grid-cols-[2px_1fr] place-items-right px-3 py-1">Upcoming</SelectItem>
+                                                                    <SelectItem value="ongoing" className="grid grid-cols-[2px_1fr] place-items-right px-3 py-1">Ongoing</SelectItem>
+                                                                    <SelectItem value="completed" className="grid grid-cols-[2px_1fr] place-items-right px-3 py-1">Completed</SelectItem>
+                                                                    <SelectItem value="evaluated" className="grid grid-cols-[2px_1fr] place-items-right px-3 py-1">Evaluated</SelectItem>
+                                                                    <SelectItem value="cancelled" className="grid grid-cols-[2px_1fr] place-items-right px-3 py-1">Cancelled</SelectItem>
                                                                 </SelectContent>
                                                             </Select>
                                                         </div>
@@ -233,14 +250,14 @@ export const BookingManagement: React.FC = () => {
                                                             />
                                                         </div>
                                                         <div className="flex gap-2 justify-end pt-4 border-t">
-                                                            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                                                            <Button onClick={() => handleUpdateBooking(booking)}>Save</Button>
+                                                            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Hủy</Button>
+                                                            <Button onClick={() => handleUpdateBooking(booking)}>Lưu</Button>
                                                         </div>
                                                     </div>
                                                 )}
                                             </DialogContent>
                                         </Dialog>
-                                        <Button variant="destructive" size="sm" onClick={() => handleDeleteBooking(booking.id)}>Delete</Button>
+                                        <Button variant="destructive" size="sm" onClick={() => handleDeleteBooking(booking.id)}>Xóa</Button>
                                     </TableCell>
                                 </TableRow>
                             ))}

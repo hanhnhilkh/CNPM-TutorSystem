@@ -71,31 +71,35 @@ export const TutorManagement: React.FC = () => {
     };
 
     if (isLoading) {
-        return <div>Loading tutors...</div>;
+        return <div>Đang tải...</div>;
     }
 
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold">Total Tutors: {tutors.length}</h2>
+                <h2 className="text-lg font-semibold">Quản lý Tutor</h2>
+            </div>
+
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-sm text-gray-600">Tổng số Tutor: <strong>{tutors.length}</strong></h2>
             </div>
 
             {tutors.length === 0 ? (
                 <div className="text-center py-8 text-gray-500 border rounded-lg bg-gray-50">
-                    <p className="text-lg">No tutors found</p>
-                    <p className="text-sm mt-2">No tutors in the system</p>
+                    <p className="text-lg">Không tìm thấy Tutor</p>
+                    <p className="text-sm mt-2">Không có Tutor trong hệ thống</p>
                 </div>
             ) : (
                 <div className="border rounded-lg overflow-hidden bg-white shadow-sm">
                     <Table>
                         <TableHeader className="bg-gradient-to-r from-gray-50 to-gray-100 border-b">
                             <TableRow>
-                                <TableHead className="font-semibold text-gray-700 py-3 px-4">Name</TableHead>
+                                <TableHead className="font-semibold text-gray-700 py-3 px-4">Tên</TableHead>
                                 <TableHead className="font-semibold text-gray-700 py-3 px-4">Email</TableHead>
-                                <TableHead className="font-semibold text-gray-700 py-3 px-4">Department</TableHead>
-                                <TableHead className="font-semibold text-gray-700 py-3 px-4">Specialization</TableHead>
-                                <TableHead className="font-semibold text-gray-700 py-3 px-4">Rating</TableHead>
-                                <TableHead className="font-semibold text-gray-700 py-3 px-4 text-right">Actions</TableHead>
+                                <TableHead className="font-semibold text-gray-700 py-3 px-4">Khoa</TableHead>
+                                <TableHead className="font-semibold text-gray-700 py-3 px-4">Chuyên ngành</TableHead>
+                                <TableHead className="font-semibold text-gray-700 py-3 px-4">Đánh giá</TableHead>
+                                <TableHead className="font-semibold text-gray-700 py-3 px-4 text-right">Hành động</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -111,7 +115,7 @@ export const TutorManagement: React.FC = () => {
                                                 ⭐ {tutor.rating}
                                             </span>
                                         ) : (
-                                            <span className="text-gray-400 text-sm">No rating</span>
+                                            <span className="text-gray-400 text-sm">Không có đánh giá</span>
                                         )}
                                     </TableCell>
                                     <TableCell className="py-3 px-4 text-right space-x-2">
@@ -123,16 +127,16 @@ export const TutorManagement: React.FC = () => {
                                                 <Button variant="outline" size="sm" onClick={() => {
                                                     setEditingTutor(tutor);
                                                     setIsDialogOpen(true);
-                                                }}>Edit</Button>
+                                                }}>Chỉnh sửa</Button>
                                             </DialogTrigger>
                                             <DialogContent>
                                                 <DialogHeader>
-                                                    <DialogTitle>Edit Tutor</DialogTitle>
+                                                    <DialogTitle>Chỉnh sửa Tutor</DialogTitle>
                                                 </DialogHeader>
                                                 {editingTutor && (
                                                     <div className="space-y-4 max-h-96 overflow-y-auto pr-4">
                                                         <div>
-                                                            <Label htmlFor="name">Name</Label>
+                                                            <Label htmlFor="name">Tên</Label>
                                                             <Input
                                                                 id="name"
                                                                 value={editingTutor.name || ''}
@@ -149,7 +153,7 @@ export const TutorManagement: React.FC = () => {
                                                             />
                                                         </div>
                                                         <div>
-                                                            <Label htmlFor="department">Department</Label>
+                                                            <Label htmlFor="department">Khoa</Label>
                                                             <Input
                                                                 id="department"
                                                                 value={editingTutor.department || ''}
@@ -157,7 +161,7 @@ export const TutorManagement: React.FC = () => {
                                                             />
                                                         </div>
                                                         <div>
-                                                            <Label htmlFor="specialization">Specialization</Label>
+                                                            <Label htmlFor="specialization">Chuyên ngành</Label>
                                                             <Input
                                                                 id="specialization"
                                                                 value={editingTutor.specialization || ''}
@@ -165,7 +169,7 @@ export const TutorManagement: React.FC = () => {
                                                             />
                                                         </div>
                                                         <div>
-                                                            <Label htmlFor="rating">Rating</Label>
+                                                            <Label htmlFor="rating">Đánh giá</Label>
                                                             <Input
                                                                 id="rating"
                                                                 type="number"
@@ -177,14 +181,14 @@ export const TutorManagement: React.FC = () => {
                                                             />
                                                         </div>
                                                         <div className="flex gap-2 justify-end pt-4 border-t">
-                                                            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                                                            <Button onClick={handleUpdateTutor}>Save</Button>
+                                                            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Hủy</Button>
+                                                            <Button onClick={handleUpdateTutor}>Lưu</Button>
                                                         </div>
                                                     </div>
                                                 )}
                                             </DialogContent>
                                         </Dialog>
-                                        <Button variant="destructive" size="sm" onClick={() => handleDeleteTutor(tutor.id)}>Delete</Button>
+                                        <Button variant="destructive" size="sm" onClick={() => handleDeleteTutor(tutor.id)}>Xóa</Button>
                                     </TableCell>
                                 </TableRow>
                             ))}

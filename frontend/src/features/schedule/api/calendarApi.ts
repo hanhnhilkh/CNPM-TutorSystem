@@ -100,18 +100,18 @@ export const getScheduleForTutor = async (
     const weekDates: { day: string, engDay: string, date: string }[] = [];
     let currentDate = new Date();
     for (let i = 0; i < 7; i++) {
-        weekDates.push({
-            day: getVietnameseDayName(currentDate),
-            engDay: getDayNameInEnglish(currentDate),
-            date: format(currentDate, 'yyyy-MM-dd')
-        });
-        currentDate = addDays(currentDate, 1);
+      weekDates.push({
+        day: getVietnameseDayName(currentDate),
+        engDay: getDayNameInEnglish(currentDate),
+        date: format(currentDate, 'yyyy-MM-dd')
+      });
+      currentDate = addDays(currentDate, 1);
     }
 
     const calendar: CalendarDay[] = weekDates.map(dayInfo => {
       const scheduleEntry = schedule.find((item: any) => item.day === dayInfo.engDay);
       const availableSlots = scheduleEntry ? scheduleEntry.slots : [];
-      
+
       // Convert all slots (including ranges like "09:00-11:00") to individual hours
       const expandedAvailableHours: string[] = [];
       availableSlots.forEach((slot: string) => {
@@ -181,14 +181,14 @@ export const getScheduleForStudent = async (
   const workHours = appointmentHours.length > 0 ? appointmentHours : ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'];
 
   const calendar: CalendarDay[] = weekDates.map(dayInfo => {
-    const hours: CalendarHour[] = workHours.map(hour => {
+    const hours: CalendarHour[] = workHours.map((hour: string) => {
       const appointment = appointments.find((apt: any) => apt.date === dayInfo.date && apt.time === hour);
       let slot: CalendarSlot | null = null;
       if (appointment) {
         slot = {
           id: appointment.id,
           subject: appointment.subject,
-          status: 'booked',
+          status: appointment.status || 'booked',
           tutorName: appointment.tutorName,
         };
       }
@@ -238,7 +238,7 @@ export const addAvailableSlot = async (tutorId: string, tutorName: string, day: 
     const status = response.status;
     console.error(`[API Error] Failed to add slot. Status: ${status}.`);
 
-  // Log detailed error from the API for debugging
+    // Log detailed error from the API for debugging
     try {
       const errorBody = await response.json();
       console.error('API Error Details (Received from Server):', errorBody);
@@ -277,7 +277,9 @@ export const deleteAvailableSlot = async (tutorId: string, date: string, hour: s
  */
 export const cancelAppointment = async (appointmentId: string): Promise<boolean> => {
   const response = await fetch(`${API_URL}/schedule/appointments/${appointmentId}`, {
-    method: 'DELETE',
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: 'cancelled' }),
   });
   return response.ok;
 };
