@@ -7,7 +7,7 @@ import { Card, CardContent } from '../../components/ui/card';
 import { CalendarDay, CalendarHour, CalendarSlot } from '../../types';
 import { addAvailableSlot, cancelAppointment, createAppointment, deleteAvailableSlot, freeSlot, getScheduleForTutor } from './api/calendarApi';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../../components/ui/dialog';
-import { addDays, format, startOfWeek } from 'date-fns';
+import { addDays, format, startOfWeek, parseISO } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Input } from '../../components/ui/input';
 
@@ -155,7 +155,7 @@ export function TutorSchedulePage({ userRole, onNavigate, onGoBack }: TutorSched
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <CalendarIcon className="w-5 h-5 text-[#003366]" />
-                  <h2 className="text-[#003366]">Lịch</h2>
+                  <h2 className="text-[#003366]">Lịch tuần 17/11 - 23/11/2025</h2>
                 </div>
                 {/* Legend */}
                 <div className="flex gap-4 text-sm">
@@ -169,19 +169,20 @@ export function TutorSchedulePage({ userRole, onNavigate, onGoBack }: TutorSched
               {!isLoading && (
                 <div className="overflow-x-auto rounded-lg border border-gray-200">
                   {(() => {
-                    // Helper to get dates for the current week, starting from Monday
-                    const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
+                    // Fixed week: 17/11 - 23/11/2025
+                    const fixedWeekStart = parseISO('2025-11-17');
                     const weekDates = WEEK_DAYS_MAPPING.map((day, index) => {
-                      return { ...day, date: format(addDays(weekStart, index), 'yyyy-MM-dd') };
+                      return { ...day, date: format(addDays(fixedWeekStart, index), 'yyyy-MM-dd') };
                     });
                     return (
                   <table className="min-w-full w-full border-collapse">
                     <thead>
                       <tr className="bg-gray-50 border-b border-gray-300">
                         <th className="text-center p-3 border-r border-gray-300 font-medium text-gray-600 w-24 bg-gray-50">Giờ</th>
-                        {WEEK_DAYS_MAPPING.map((day) => (
+                        {weekDates.map((day) => (
                           <th key={day.key} className="text-center p-3 border-r last:border-r-0 border-b bg-gray-50">
                             <p className="font-medium text-gray-700">{day.display}</p>
+                            <p className="text-xs text-gray-500 mt-1">{day.date}</p>
                           </th>
                         ))}
                       </tr>
@@ -195,7 +196,7 @@ export function TutorSchedulePage({ userRole, onNavigate, onGoBack }: TutorSched
                               <span className="text-gray-700 text-sm">{hour}</span>
                             </td>
                             {weekDates.map((day) => {
-                              const dayData = schedule.find(d => d.day === day.display);
+                              const dayData = schedule.find(d => d.engDay === day.key);
                               const hourData = dayData?.hours.find(h => h.hour === hour);
                               const status = hourData?.slot?.status ?? null;
 

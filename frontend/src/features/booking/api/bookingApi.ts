@@ -1,4 +1,5 @@
 import { Evaluation, Session } from "../../../types";
+import { getScheduleForTutor } from "../../schedule/api/calendarApi";
 
 const API_URL = 'http://localhost:3001';
 
@@ -88,12 +89,37 @@ export const submitEvaluation = async (evaluationData: Omit<Evaluation, 'id'>): 
 };
 
 /**
- * Lấy các slot thời gian rảnh của giảng viên.
+ * Lấy các slot thời gian rảnh của giảng viên (từ tutorSchedule pattern + appointments).
  */
 export const getTutorAvailableSchedule = async (tutorId: string): Promise<Session[]> => {
-    //const response = await fetch(`${API_URL}/appointments?tutorId=${tutorId}&status=available`);
-    const response = await fetch(`${API_URL}/api/schedule/appointments?tutorId=${tutorId}&status=available`)
+    // Reuse getScheduleForTutor which handles tutorSchedule pattern + appointments
+    const calendarDays = await getScheduleForTutor(tutorId, tutorId);
     
-    const availableSlots = await response.json();
-    return availableSlots as Session[];
+    // Return empty array if no schedule found
+    if (!calendarDays) {
+        return [];
+    }
+    
+    // Flatten all available hours into Session objects
+    const availableSlots: Session[] = [];
+    
+    calendarDays.forEach(day => {
+        day.hours.forEach(hour => {
+            // Only include slots that are "available" or came from cancelled appointments
+            if (hour.slot && (hour.slot.status === 'available')) {
+                availableSlots.push({
+                    id: hour.slot.id,
+                    tutorId: tutorId,
+                    tutorName: '',
+                    subject: hour.slot.subject,
+                    date: day.date,
+                    time: hour.hour,
+                    status: 'available',
+                    type: 'online',
+                });
+            }
+        });
+    });
+    
+    return availableSlots;
 };

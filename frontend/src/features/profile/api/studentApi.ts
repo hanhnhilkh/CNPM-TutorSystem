@@ -3,14 +3,16 @@ import { Session } from '../../../types';
 const API_URL = 'http://localhost:3001/api';
 
 /**
- * Lấy danh sách các buổi hẹn sắp tới của sinh viên.
+ * Lấy danh sách các buổi hẹn sắp tới của sinh viên (bao gồm both upcoming và ongoing).
  */
 export const getStudentUpcomingAppointments = async (studentId: string): Promise<Session[]> => {
-  const response = await fetch(`${API_URL}/booking?studentId=${studentId}&status=upcoming&_sort=date&_order=asc`);
+  const response = await fetch(`${API_URL}/booking?studentId=${studentId}&_sort=date&_order=asc`);
   if (!response.ok) {
     throw new Error('Failed to fetch appointments');
   }
-  return response.json();
+  const allAppointments = await response.json();
+  // Include both 'upcoming' and 'ongoing' statuses
+  return allAppointments.filter((apt: Session) => apt.status === 'upcoming' || apt.status === 'ongoing');
 };
 
 /**

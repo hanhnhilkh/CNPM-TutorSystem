@@ -90,6 +90,8 @@ export const getScheduleForTutor = async (
     const scheduleRes = await fetch(`${API_URL}/schedule?tutorId=${tutorId}`);
     const schedule = await scheduleRes.json();
 
+    console.log('[DEBUG] schedule from API:', schedule);
+
     const appointmentsRes = await fetch(`${API_URL}/schedule/appointments?tutorId=${tutorId}`);
     if (!appointmentsRes.ok) {
       console.warn(`Failed to fetch appointments for tutor ${tutorId}`);
@@ -97,20 +99,20 @@ export const getScheduleForTutor = async (
     }
     const appointments = await appointmentsRes.json();
 
-    const weekDates: { day: string, engDay: string, date: string }[] = [];
-    let currentDate = new Date();
-    for (let i = 0; i < 7; i++) {
-      weekDates.push({
-        day: getVietnameseDayName(currentDate),
-        engDay: getDayNameInEnglish(currentDate),
-        date: format(currentDate, 'yyyy-MM-dd')
-      });
-      currentDate = addDays(currentDate, 1);
-    }
-
-    const calendar: CalendarDay[] = weekDates.map(dayInfo => {
+    // Fixed week: 17/11 - 23/11/2025 (Monday - Sunday)
+    const weekDates: { day: string, engDay: string, date: string }[] = [
+      { day: 'Thứ 2', engDay: 'Monday', date: '2025-11-17' },
+      { day: 'Thứ 3', engDay: 'Tuesday', date: '2025-11-18' },
+      { day: 'Thứ 4', engDay: 'Wednesday', date: '2025-11-19' },
+      { day: 'Thứ 5', engDay: 'Thursday', date: '2025-11-20' },
+      { day: 'Thứ 6', engDay: 'Friday', date: '2025-11-21' },
+      { day: 'Thứ 7', engDay: 'Saturday', date: '2025-11-22' },
+      { day: 'Chủ Nhật', engDay: 'Sunday', date: '2025-11-23' },
+    ];    const calendar: CalendarDay[] = weekDates.map(dayInfo => {
       const scheduleEntry = schedule.find((item: any) => item.day === dayInfo.engDay);
       const availableSlots = scheduleEntry ? scheduleEntry.slots : [];
+
+      console.log(`[DEBUG] dayInfo.engDay: ${dayInfo.engDay}, found: ${!!scheduleEntry}, slots:`, availableSlots);
 
       // Convert all slots (including ranges like "09:00-11:00") to individual hours
       const expandedAvailableHours: string[] = [];
@@ -141,7 +143,7 @@ export const getScheduleForTutor = async (
         return { hour, slot };
       });
 
-      return { day: dayInfo.day, date: dayInfo.date, hours };
+      return { day: dayInfo.day, engDay: dayInfo.engDay, date: dayInfo.date, hours };
     });
 
     return calendar;

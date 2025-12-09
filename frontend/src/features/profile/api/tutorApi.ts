@@ -26,16 +26,15 @@ export const getTutorDashboardData = async (tutorId: string): Promise<{
       tutorRating = 0;
     }
 
-    // Tách booked và upcoming appointments
+    // Tách booked, upcoming, và ongoing appointments
     const bookedAppointments = allAppointments.filter(a => a.status === 'booked');
-    const upcomingAppointments = allAppointments.filter(a => a.status === 'upcoming');
+    const upcomingAndOngoingAppointments = allAppointments.filter(a => a.status === 'upcoming' || a.status === 'ongoing');
 
     // Tính toán các chỉ số
     // Tổng buổi hẹn = upcoming + ongoing (những buổi đã được xác nhận và đang hoặc sắp diễn ra)
-    const totalSessionsCount = allAppointments.filter(a => a.status === 'upcoming' || a.status === 'ongoing').length;
+    const totalSessionsCount = upcomingAndOngoingAppointments.length;
 
     // Sinh viên unique (chỉ từ upcoming + ongoing appointments)
-    const upcomingAndOngoingAppointments = allAppointments.filter(a => a.status === 'upcoming' || a.status === 'ongoing');
     const totalStudents = new Set(
       upcomingAndOngoingAppointments
         .map(a => a.studentId)
@@ -47,13 +46,13 @@ export const getTutorDashboardData = async (tutorId: string): Promise<{
 
     const stats: TutorStats = {
       totalSessions: totalSessionsCount,
-      upcomingSessions: upcomingAppointments.length,
+      upcomingSessions: upcomingAndOngoingAppointments.length,
       totalStudents,
       totalAppointments: allAppointments.length,
       averageRating: Number(averageRating)
     };
 
-    return { stats, upcomingAppointments, bookedRequests: bookedAppointments };
+    return { stats, upcomingAppointments: upcomingAndOngoingAppointments, bookedRequests: bookedAppointments };
   } catch (error) {
     console.error('Error fetching tutor dashboard data:', error);
     throw error;

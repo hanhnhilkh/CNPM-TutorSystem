@@ -339,13 +339,13 @@ export function UserProfile({ profileId, currentUserId, userRole, onNavigate, on
                     </h3>
                     {canViewSchedule ? (
                       <div className="text-sm text-gray-700">
-                        {schedule.flatMap(day => day.hours).filter(h => h.slot).length > 0 ? (
+                        {schedule.flatMap(day => day.hours).filter(h => h.slot && (isOwnProfile || profile?.role !== 'tutor' || h.slot.status === 'available')).length > 0 ? (
                           <ul className="space-y-1">
                             {schedule.map(day =>
-                              day.hours.filter(h => h.slot).map((hour, idx) => (
+                              day.hours.filter(h => h.slot && (isOwnProfile || profile?.role !== 'tutor' || h.slot.status === 'available')).map((hour, idx) => (
                                 <li key={`${day.date}-${hour.hour}-${idx}`}>
                                   <strong>{day.day}, {hour.hour}:</strong> {hour.slot?.subject}
-                                  {hour.slot?.tutorName && ` (với ${hour.slot.tutorName})`}
+                                  {/* {hour.slot?.tutorName && ` (với ${hour.slot.tutorName})`} */}
                                   {hour.slot?.studentName && ` (với ${hour.slot.studentName})`}
                                 </li>
                               ))

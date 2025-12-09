@@ -25,7 +25,8 @@ export function TutorDashboard({ onNavigate, onLogout }: TutorDashboardProps) {
   const [upcomingAppointments, setUpcomingAppointments] = useState<Session[]>([]);
   const [bookedRequests, setBookedRequests] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [tutorWaitingFor, setTutorWaitingFor] = useState<{ [key: string]: boolean }>({});
+  const [tutorJoined, setTutorJoined] = useState<{ [key: string]: boolean }>({});
+  const [studentJoined, setStudentJoined] = useState<{ [key: string]: boolean }>({});
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [appointmentToCancel, setAppointmentToCancel] = useState<Session | null>(null);
 
@@ -43,6 +44,21 @@ export function TutorDashboard({ onNavigate, onLogout }: TutorDashboardProps) {
       setStats(stats);
       setUpcomingAppointments(upcomingAppointments);
       setBookedRequests(bookedRequests);
+      
+      // Initialize tutorJoined and studentJoined states based on current appointments
+      const newTutorJoined: { [key: string]: boolean } = {};
+      const newStudentJoined: { [key: string]: boolean } = {};
+      
+      upcomingAppointments.forEach(apt => {
+        // If status is ongoing, we can infer that at least one party has joined
+        // We assume student initiates it, so if status is ongoing, student has joined
+        if (apt.status === 'ongoing') {
+          newStudentJoined[apt.id] = true;
+        }
+      });
+      
+      setTutorJoined(newTutorJoined);
+      setStudentJoined(newStudentJoined);
     } catch (error) {
       console.error('Failed to fetch dashboard data:', error);
     }
@@ -93,24 +109,37 @@ export function TutorDashboard({ onNavigate, onLogout }: TutorDashboardProps) {
 
   const handleJoinAppointment = async (appointment: Session) => {
     try {
-      // Check if student is waiting (we'll assume student is waiting if not in tutorWaitingFor)
-      if (!tutorWaitingFor[appointment.id]) {
-        // Tutor joins first - mark as ongoing
+      // If already ongoing and tutor has joined, can either leave or wait for student to complete
+      if (appointment.status === 'ongoing' && tutorJoined[appointment.id]) {
+        // Tutor is cancelling their participation
         const response = await fetch(`${API_URL}/booking/${appointment.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'ongoing' }),
+          body: JSON.stringify({ status: 'upcoming' }),
         });
 
         if (response.ok) {
-          // Mark tutor as waiting for student
-          setTutorWaitingFor(prev => ({ ...prev, [appointment.id]: true }));
           setUpcomingAppointments(upcomingAppointments.map(apt =>
-            apt.id === appointment.id ? { ...apt, status: 'ongoing' } : apt
+            apt.id === appointment.id ? { ...apt, status: 'upcoming' } : apt
           ));
+          setTutorJoined(prev => {
+            const newState = { ...prev };
+            delete newState[appointment.id];
+            return newState;
+          });
+          setStudentJoined(prev => {
+            const newState = { ...prev };
+            delete newState[appointment.id];
+            return newState;
+          });
         }
-      } else {
-        // Both sides joined - mark as completed
+        return;
+      }
+
+      // If upcoming or ongoing but tutor hasn't joined, tutor joins now
+      // Check if student already joined - if so, mark as completed
+      if (appointment.status === 'ongoing' && studentJoined[appointment.id]) {
+        // Both have joined - mark as completed
         const response = await fetch(`${API_URL}/booking/${appointment.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -119,12 +148,32 @@ export function TutorDashboard({ onNavigate, onLogout }: TutorDashboardProps) {
 
         if (response.ok) {
           setUpcomingAppointments(upcomingAppointments.filter(apt => apt.id !== appointment.id));
-          setTutorWaitingFor(prev => {
+          setTutorJoined(prev => {
+            const newState = { ...prev };
+            delete newState[appointment.id];
+            return newState;
+          });
+          setStudentJoined(prev => {
             const newState = { ...prev };
             delete newState[appointment.id];
             return newState;
           });
         }
+        return;
+      }
+
+      // Tutor joins first
+      const response = await fetch(`${API_URL}/booking/${appointment.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'ongoing' }),
+      });
+
+      if (response.ok) {
+        setUpcomingAppointments(upcomingAppointments.map(apt =>
+          apt.id === appointment.id ? { ...apt, status: 'ongoing' } : apt
+        ));
+        setTutorJoined(prev => ({ ...prev, [appointment.id]: true }));
       }
     } catch (error) {
       console.error('Failed to join appointment:', error);
@@ -141,7 +190,12 @@ export function TutorDashboard({ onNavigate, onLogout }: TutorDashboardProps) {
 
       if (response.ok) {
         setUpcomingAppointments(upcomingAppointments.filter(apt => apt.id !== appointment.id));
-        setTutorWaitingFor(prev => {
+        setTutorJoined(prev => {
+          const newState = { ...prev };
+          delete newState[appointment.id];
+          return newState;
+        });
+        setStudentJoined(prev => {
           const newState = { ...prev };
           delete newState[appointment.id];
           return newState;
@@ -280,7 +334,7 @@ export function TutorDashboard({ onNavigate, onLogout }: TutorDashboardProps) {
                                   </span>
                                   {appointment.status === 'ongoing' && (
                                     <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">
-                                      {tutorWaitingFor[appointment.id] ? 'Đang đợi SV' : 'Tutor đang đợi'}
+                                      {tutorJoined[appointment.id] ? 'Tutor đã vào' : 'Chờ Tutor'} / {studentJoined[appointment.id] ? 'SV đã vào' : 'Chờ SV'}
                                     </span>
                                   )}
                                 </div>
@@ -289,11 +343,15 @@ export function TutorDashboard({ onNavigate, onLogout }: TutorDashboardProps) {
                             <div className="flex gap-2">
                               <Button
                                 size="sm"
-                                className="bg-[#003366] hover:bg-[#004488] text-white"
+                                className={`text-white ${
+                                  appointment.status === 'ongoing' && tutorJoined[appointment.id]
+                                    ? 'bg-red-600 hover:bg-red-700'
+                                    : 'bg-[#003366] hover:bg-[#004488]'
+                                }`}
                                 onClick={() => handleJoinAppointment(appointment)}
                               >
-                                {appointment.status === 'ongoing' && tutorWaitingFor[appointment.id]
-                                  ? 'Xong'
+                                {appointment.status === 'ongoing' && tutorJoined[appointment.id]
+                                  ? 'Hủy tham gia'
                                   : 'Tham gia'}
                               </Button>
                               <Button

@@ -20,8 +20,8 @@ export function StudentDashboard({ onNavigate, onLogout, onEvaluate, onSelectTut
   const [upcomingAppointments, setUpcomingAppointments] = useState<Session[]>([]);
   const [completedAppointments, setCompletedAppointments] = useState<Session[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [studentWaitingFor, setStudentWaitingFor] = useState<{ [key: string]: boolean }>({});
-  const [tutorWaitingFor, setTutorWaitingFor] = useState<{ [key: string]: boolean }>({});
+  const [studentJoined, setStudentJoined] = useState<{ [key: string]: boolean }>({});
+  const [tutorJoined, setTutorJoined] = useState<{ [key: string]: boolean }>({});
 
   const API_URL = 'http://localhost:3001/api';
 
@@ -35,6 +35,21 @@ export function StudentDashboard({ onNavigate, onLogout, onEvaluate, onSelectTut
       ]);
       setUpcomingAppointments(upcoming);
       setCompletedAppointments(completed);
+      
+      // Initialize tutorJoined and studentJoined states based on current appointments
+      const newTutorJoined: { [key: string]: boolean } = {};
+      const newStudentJoined: { [key: string]: boolean } = {};
+      
+      upcoming.forEach(apt => {
+        // If status is ongoing, we can infer that at least one party has joined
+        // We assume tutor manages it, so if status is ongoing, tutor has joined
+        if (apt.status === 'ongoing') {
+          newTutorJoined[apt.id] = true;
+        }
+      });
+      
+      setTutorJoined(newTutorJoined);
+      setStudentJoined(newStudentJoined);
       setIsLoading(false);
     };
     fetchAppointments();
@@ -42,11 +57,9 @@ export function StudentDashboard({ onNavigate, onLogout, onEvaluate, onSelectTut
 
   const handleJoinSession = async (session: Session) => {
     try {
-      // If session is already ongoing, allow reverting to upcoming
-      if (session.status === 'ongoing') {
-        const confirmRevert = window.confirm('Bạn muốn quay lại trạng thái "Chờ Tutor" (hủy tham gia)?');
-        if (!confirmRevert) return;
-
+      // If session is already ongoing and student has joined, can either leave or wait for tutor to complete
+      if (session.status === 'ongoing' && studentJoined[session.id]) {
+        // Student is cancelling their participation
         const response = await fetch(`${API_URL}/booking/${session.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -57,7 +70,12 @@ export function StudentDashboard({ onNavigate, onLogout, onEvaluate, onSelectTut
           setUpcomingAppointments(upcomingAppointments.map(apt =>
             apt.id === session.id ? { ...apt, status: 'upcoming' } : apt
           ));
-          setStudentWaitingFor(prev => {
+          setStudentJoined(prev => {
+            const newState = { ...prev };
+            delete newState[session.id];
+            return newState;
+          });
+          setTutorJoined(prev => {
             const newState = { ...prev };
             delete newState[session.id];
             return newState;
@@ -66,39 +84,49 @@ export function StudentDashboard({ onNavigate, onLogout, onEvaluate, onSelectTut
         return;
       }
 
-      // Mark student as waiting
-      setStudentWaitingFor(prev => ({ ...prev, [session.id]: true }));
-
-      // If tutor is already waiting, complete the session
-      if (tutorWaitingFor[session.id]) {
-        // Update status to completed
+      // If ongoing but student hasn't joined, student joins now
+      // Check if tutor already joined - if so, mark as completed
+      if (session.status === 'ongoing' && tutorJoined[session.id]) {
+        // Both have joined - mark as completed
         const response = await fetch(`${API_URL}/booking/${session.id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: 'completed' }),
         });
+
         if (response.ok) {
-          // Move from upcoming to completed
           setUpcomingAppointments(upcomingAppointments.filter(apt => apt.id !== session.id));
-          setCompletedAppointments([session, ...completedAppointments]);
-          setTutorWaitingFor(prev => {
+          setStudentJoined(prev => {
             const newState = { ...prev };
             delete newState[session.id];
             return newState;
           });
+          setTutorJoined(prev => {
+            const newState = { ...prev };
+            delete newState[session.id];
+            return newState;
+          });
+          
+          // Refetch completed appointments to trigger evaluation popup
+          const studentId = 'student-1';
+          const completedApts = await getStudentCompletedAppointments(studentId);
+          setCompletedAppointments(completedApts);
         }
-      } else {
-        // Update status to ongoing
-        const response = await fetch(`${API_URL}/booking/${session.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'ongoing' }),
-        });
-        if (response.ok) {
-          setUpcomingAppointments(upcomingAppointments.map(apt =>
-            apt.id === session.id ? { ...apt, status: 'ongoing' } : apt
-          ));
-        }
+        return;
+      }
+
+      // Student joins first
+      const response = await fetch(`${API_URL}/booking/${session.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'ongoing' }),
+      });
+
+      if (response.ok) {
+        setUpcomingAppointments(upcomingAppointments.map(apt =>
+          apt.id === session.id ? { ...apt, status: 'ongoing' } : apt
+        ));
+        setStudentJoined(prev => ({ ...prev, [session.id]: true }));
       }
     } catch (error) {
       console.error('Failed to join session:', error);
@@ -198,10 +226,9 @@ export function StudentDashboard({ onNavigate, onLogout, onEvaluate, onSelectTut
                           onClick={() => handleJoinSession(session)}
                         >
                           <Video className="w-4 h-4 mr-2" />
-                          {session.status === 'ongoing' ? 'Đang đợi Tutor' :
-                            studentWaitingFor[session.id] ? 'Chờ kết nối' :
-                              tutorWaitingFor[session.id] ? 'Tutor đang đợi' :
-                                'Tham gia'}
+                          {session.status === 'ongoing' && studentJoined[session.id]
+                            ? 'Hủy tham gia'
+                            : 'Tham gia'}
                         </Button>
                         <Button
                           className="bg-white text-[#003366] hover:bg-gray-100"

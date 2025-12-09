@@ -98,11 +98,25 @@ export class ScheduleService {
             // Day not found in schedule
             return false;
         }
-        // const targetHour = targetDay?.slots.find(h => h.hour === hour);
 
         const initialSlotCount = targetDay.slots.length;
 
-        const updatedSlots = targetDay.slots.filter(h => h !== hour);
+        // Updated filter to handle both single hours and ranges
+        const updatedSlots = targetDay.slots.filter(slot => {
+            // If slot is a single hour (e.g., "09:00"), remove if it matches hour
+            if (!slot.includes('-')) {
+                return slot !== hour;
+            }
+            // If slot is a range (e.g., "09:00-11:00"), check if hour is within range
+            const [start, end] = slot.split('-');
+            const startHour = parseInt(start.substring(0, 2), 10);
+            const endHour = parseInt(end.substring(0, 2), 10);
+            const targetHour = parseInt(hour.substring(0, 2), 10);
+            
+            // Keep the slot if the hour is NOT within the range
+            return !(targetHour >= startHour && targetHour < endHour);
+        });
+
         if (updatedSlots.length === initialSlotCount) {
             return false;
         }
