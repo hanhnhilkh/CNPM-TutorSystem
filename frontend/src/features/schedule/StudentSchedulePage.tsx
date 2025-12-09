@@ -43,13 +43,15 @@ export function StudentSchedulePage({ userRole, onNavigate, onGoBack }: StudentS
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'booked':
-        return { text: 'Đã đặt - Chờ xác nhận', bg: 'bg-gray-100', border: 'border-gray-300', text_color: 'text-gray-700' };
+        return { text: 'Đã đặt - Chờ xác nhận', bg: 'bg-gray-100', border: 'border-gray-300', text_color: 'text-black-700' };
       case 'upcoming':
         return { text: 'Đã ghi danh', bg: 'bg-blue-100', border: 'border-blue-300', text_color: 'text-blue-700' };
       case 'ongoing':
         return { text: 'Đang diễn ra', bg: 'bg-yellow-100', border: 'border-yellow-300', text_color: 'text-yellow-700' };
       case 'completed':
         return { text: 'Đã hoàn thành', bg: 'bg-green-100', border: 'border-green-300', text_color: 'text-green-700' };
+      case 'evaluated':
+        return { text: 'Đã đánh giá', bg: 'bg-orange-100', border: 'border-orange-300', text_color: 'text-gray-700' };
       case 'cancelled':
         return { text: 'Đã hủy', bg: 'bg-red-100', border: 'border-red-300', text_color: 'text-red-700' };
       default:
@@ -105,6 +107,7 @@ export function StudentSchedulePage({ userRole, onNavigate, onGoBack }: StudentS
                   <div className="flex items-center gap-2"><div className="w-4 h-4 bg-blue-100 border border-blue-300 rounded"></div><span className="text-gray-600">Đã ghi danh</span></div>
                   <div className="flex items-center gap-2"><div className="w-4 h-4 bg-yellow-100 border border-yellow-300 rounded"></div><span className="text-gray-600">Đang diễn ra</span></div>
                   <div className="flex items-center gap-2"><div className="w-4 h-4 bg-green-100 border border-green-300 rounded"></div><span className="text-gray-600">Đã hoàn thành</span></div>
+                  <div className="flex items-center gap-2"><div className="w-4 h-4 bg-orange-100 border border-orange-300 rounded"></div><span className="text-gray-600">Đã đánh giá</span></div>
                   <div className="flex items-center gap-2"><div className="w-4 h-4 bg-red-100 border border-red-300 rounded"></div><span className="text-gray-600">Đã hủy</span></div>
                 </div>
               </div>
