@@ -21,6 +21,7 @@ export const getProfile = (req: Request, res: Response) => {
         res.status(500).json({ message: 'Failed to fetch profile' });
     }
 };
+
 /**
  * Get all profiles
  */

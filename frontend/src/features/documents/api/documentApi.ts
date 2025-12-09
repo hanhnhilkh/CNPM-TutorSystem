@@ -17,7 +17,6 @@ export async function uploadDocument(file: File, visibility: 'public' | 'private
     visibility,
     pinned: false,
   };
-
   const res = await fetch(BASE, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -27,7 +26,7 @@ export async function uploadDocument(file: File, visibility: 'public' | 'private
   return res.json();
 }
 
-  export async function updateDocumentVisibility(id: string, visibility: 'public' | 'private') {
+export async function updateDocumentVisibility(id: string, visibility: 'public' | 'private') {
   try {
     const res = await fetch(`${BASE}/${id}`, {
       method: 'PUT',

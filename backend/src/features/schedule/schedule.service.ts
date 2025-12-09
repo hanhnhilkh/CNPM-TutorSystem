@@ -78,9 +78,7 @@ export class ScheduleService {
             }
             throw error;
         }
-    }
-
-    getScheduleByTutor(tutorId: string): Schedule | undefined {
+    } getScheduleByTutor(tutorId: string): Schedule | undefined {
         const db = this.readDb();
         return db.tutorSchedule[tutorId];
     }

@@ -16,7 +16,6 @@ import {
 import { ScrollArea } from "../../components/ui/scroll-area";
 import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
-
 import { Sidebar } from '../../components/shared/Sidebar';
 import { getUserProfile, updateUserProfile } from './api/profileApi';
 import { getScheduleForTutor, getScheduleForStudent } from '../schedule/api/calendarApi';
@@ -69,7 +68,6 @@ export function UserProfile({ profileId, currentUserId, userRole, onNavigate, on
   useEffect(() => {
     const fetchProfile = async () => {
       setIsLoading(true);
-      
       setError(null);
       try {
         // Get user profile from backend
@@ -83,13 +81,12 @@ export function UserProfile({ profileId, currentUserId, userRole, onNavigate, on
 
         setProfile(profileData);
 
-      
+        // Fetch schedule and documents in parallel
         try {
           const schedulePromise = profileData.role === 'tutor'
-            ? getScheduleForTutor(profileId, currentUserId)
+            ? getScheduleForTutor(profileId, currentUserId, userRole)
             : getScheduleForStudent(profileId);
 
-     
           const documentsPromise = getDocuments(profileId);
 
           const [scheduleData, documentsData] = await Promise.all([schedulePromise, documentsPromise]);
@@ -145,7 +142,6 @@ export function UserProfile({ profileId, currentUserId, userRole, onNavigate, on
   const handleSaveChanges = async () => {
     if (!profile) return;
 
-    
     // Convert comma-separated strings from form to array of objects
     // Split by comma, trim whitespace, filter empty strings, then map to objects
     const updatedInterests = editData.academicInterests
@@ -153,7 +149,7 @@ export function UserProfile({ profileId, currentUserId, userRole, onNavigate, on
       .map(s => s.trim())
       .filter(Boolean) // Remove empty entries
       .map(interest => ({ interest, public: true }));
-
+    
     // Same conversion for courses of interest
     const updatedCourses = editData.coursesOfInterest
       .split(',')
@@ -169,7 +165,6 @@ export function UserProfile({ profileId, currentUserId, userRole, onNavigate, on
     });
 
     if (updatedProfile) {
-      
       // Update UI with new profile data
       setProfile(updatedProfile);
     }
@@ -185,7 +180,6 @@ export function UserProfile({ profileId, currentUserId, userRole, onNavigate, on
   };
 
   if (isLoading) {
-   
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
@@ -259,13 +253,11 @@ export function UserProfile({ profileId, currentUserId, userRole, onNavigate, on
                   )}
                   {/* Logic hiển thị nút hành động được cải tiến */}
                   {isOwnProfile ? (
-                   
                     <Button onClick={handleOpenEditDialog} className="mt-4 w-full bg-orange-500 hover:bg-orange-600">
                       <Edit className="w-4 h-4 mr-2" /> Chỉnh sửa hồ sơ
                     </Button>
                   ) : userRole === 'student' && profile.role === 'tutor' ? (
                     <Button onClick={handleBookAppointment} className="mt-4 w-full bg-[#003366] hover:bg-[#004488]">
-                      
                       Đặt lịch hẹn
                     </Button>
                   ) : null}
@@ -292,7 +284,6 @@ export function UserProfile({ profileId, currentUserId, userRole, onNavigate, on
                       <div>
                         <h3 className="text-lg text-[#003366] mb-2 border-b pb-2">Công trình nghiên cứu</h3>
                         <ul className="list-disc list-inside space-y-1 text-sm">
-                      
                           {profile.publications?.filter((p: { public: any; }) => p.public).map((pub: { link: string; title: string; }, i: number) => (
                             <li key={i}><a href={pub.link} className="text-blue-600 hover:underline">{pub.title}</a></li>
                           ))}
@@ -302,7 +293,6 @@ export function UserProfile({ profileId, currentUserId, userRole, onNavigate, on
                   )}
                   {/* Student Specific Info */}
                   {profile.role === 'student' && (
-                     
                     <>
                       <div>
                         <h3 className="text-lg text-[#003366] mb-2 border-b pb-2">Thông tin học tập</h3>
@@ -310,7 +300,6 @@ export function UserProfile({ profileId, currentUserId, userRole, onNavigate, on
                           <p><strong>Chuyên ngành:</strong> {profile.major}</p>
                           <p><strong>Khóa:</strong> {profile.cohort}</p>
                         </div>
-                      
                       </div>
                       <div>
                         <h3 className="text-lg text-[#003366] mb-2 border-b pb-2">Lĩnh vực quan tâm</h3>
@@ -319,7 +308,6 @@ export function UserProfile({ profileId, currentUserId, userRole, onNavigate, on
                             <Badge key={idx} variant="secondary">{interest.interest}</Badge>
                           ))}
                         </div>
-                      
                       </div>
                       <div>
                         <h3 className="text-lg text-[#003366] mb-2 border-b pb-2">Khóa học quan tâm</h3>
@@ -327,7 +315,7 @@ export function UserProfile({ profileId, currentUserId, userRole, onNavigate, on
                           {profile.coursesOfInterest?.filter((c: { public: any; }) => c.public).map((course: { course: string; }, idx: number) => (
                             <Badge key={idx} variant="secondary">{course.course}</Badge>
                           ))}
-                        </div>                     
+                        </div>
                       </div>
                     </>
                   )}
@@ -400,138 +388,129 @@ export function UserProfile({ profileId, currentUserId, userRole, onNavigate, on
       </div>
       {/* Edit Profile Dialog */}
       <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        {/* <ScrollArea className="h-[200px] w-full rounded-md border p-4"> */}
-          <DialogContent className="overflow-y-auto flex-1">
-            <DialogHeader>
-              <DialogTitle className="text-[#003366]">Chỉnh sửa hồ sơ</DialogTitle>
-              <DialogDescription>
-                Cập nhật các lĩnh vực và khóa học bạn quan tâm.
-                <br />
-                <span className="text-xs text-gray-500">Mỗi mục cách nhau bởi dấu phẩy ( , )</span>
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4 overflow-y-auto flex-1 pr-4">
-              {profile?.role === 'student' && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="academicInterests">Lĩnh vực quan tâm</Label>
-                    <Textarea
-                      id="academicInterests"
-                      name="academicInterests"
-                      value={editData.academicInterests}
-                      onChange={handleEditFormChange}
-                      placeholder="Ví dụ: Lập trình web, Học máy, An toàn thông tin"
-                      className="min-h-[100px]"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="coursesOfInterest">Khóa học quan tâm</Label>
-                    <Textarea
-                      id="coursesOfInterest"
-                      name="coursesOfInterest"
-                      value={editData.coursesOfInterest}
-                      onChange={handleEditFormChange}
-                      placeholder="Ví dụ: CO3001, MA1001"
-                      className="min-h-[100px]"
-                    />
-                  </div>
-                </>
-              )}
-            
-              {/* Schedule visibility options - displayed as clickable items */}
-              <div className="space-y-2">
-                <Label>Hiển thị thời khóa biểu</Label>
-              
-                <div className="space-y-2 mt-2">
-                  {/* Public option for schedule visibility */}
-                  <button
-                    onClick={() => handleVisibilityChange('scheduleVisibility', 'public')}
-                    className={`w-full flex items-center gap-2 p-3 rounded-lg border-2 transition-all ${editData.scheduleVisibility === 'public'
-                        ? 'border-[#003366] bg-[#E0F7FF]'
-                        : 'border-gray-200 bg-gray-50 hover:border-gray-300'
-                      }`}
-                  >
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${editData.scheduleVisibility === 'public'
-                        ? 'border-[#003366] bg-[#003366]'
-                        : 'border-gray-300 bg-white'
-                      }`}>
-                      {editData.scheduleVisibility === 'public' && <div className="w-2 h-2 bg-white rounded-full" />}
-                    </div>
-                    <div className="text-left">
-                      <p className="font-medium text-[#003366]">Công khai</p>
-                      <p className="text-xs text-gray-600 whitespace-nowrap">Mọi người có thể xem</p>
-                    </div>
-                  </button>
-                  {/* Private option for schedule visibility */}
-                  <button
-                    onClick={() => handleVisibilityChange('scheduleVisibility', 'private')}
-                    className={`w-full flex items-center gap-2 p-3 rounded-lg border-2 transition-all ${editData.scheduleVisibility === 'private'
-                        ? 'border-[#003366] bg-[#E0F7FF]'
-                        : 'border-gray-200 bg-gray-50 hover:border-gray-300'
-                      }`}
-                  >
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${editData.scheduleVisibility === 'private'
-                        ? 'border-[#003366] bg-[#003366]'
-                        : 'border-gray-300 bg-white'
-                      }`}>
-                      {editData.scheduleVisibility === 'private' && <div className="w-2 h-2 bg-white rounded-full" />}
-                    </div>
-                    <div className="text-left">
-                      <p className="font-medium text-[#003366]">Riêng tư</p>
-                      <p className="text-xs text-gray-600 whitespace-nowrap">Chỉ bạn có thể xem</p>
-                    </div>
-                  </button>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-[#003366]">Chỉnh sửa hồ sơ</DialogTitle>
+            <DialogDescription>
+              Cập nhật các lĩnh vực và khóa học bạn quan tâm.
+              <br />
+              <span className="text-xs text-gray-500">Mỗi mục cách nhau bởi dấu phẩy ( , )</span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {profile?.role === 'student' && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="academicInterests">Lĩnh vực quan tâm</Label>
+                  <Textarea
+                    id="academicInterests"
+                    name="academicInterests"
+                    value={editData.academicInterests}
+                    onChange={handleEditFormChange}
+                    placeholder="Ví dụ: Lập trình web, Học máy, An toàn thông tin"
+                    className="min-h-[100px]"
+                  />
                 </div>
-              </div>
-              {/* Documents visibility options - displayed as clickable items */}
-              <div className="space-y-2">
-                <Label>Hiển thị tài liệu</Label>
-            
-                <div className="space-y-2 mt-2">
-                  {/* Public option for documents visibility */}
-                  <button
-                    onClick={() => handleVisibilityChange('documentsVisibility', 'public')}
-                    className={`w-full flex items-center gap-2 p-3 rounded-lg border-2 transition-all ${editData.documentsVisibility === 'public'
-                        ? 'border-[#003366] bg-[#E0F7FF]'
-                        : 'border-gray-200 bg-gray-50 hover:border-gray-300'
-                      }`}
-                  >
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${editData.documentsVisibility === 'public'
-                        ? 'border-[#003366] bg-[#003366]'
-                        : 'border-gray-300 bg-white'
-                      }`}>
-                      {editData.documentsVisibility === 'public' && <div className="w-2 h-2 bg-white rounded-full" />}
-                    </div>
-                    <div className="text-left">
-                      <p className="font-medium text-[#003366]">Công khai</p>
-                      <p className="text-xs text-gray-600 whitespace-nowrap">Mọi người có thể xem</p>
-                    </div>
-                  </button>
-                  {/* Private option for documents visibility */}
-                  <button
-                    onClick={() => handleVisibilityChange('documentsVisibility', 'private')}
-                    className={`w-full flex items-center gap-2 p-3 rounded-lg border-2 transition-all ${editData.documentsVisibility === 'private'
-                        ? 'border-[#003366] bg-[#E0F7FF]'
-                        : 'border-gray-200 bg-gray-50 hover:border-gray-300'
-                      }`}
-                  >
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${editData.documentsVisibility === 'private'
-                        ? 'border-[#003366] bg-[#003366]'
-                        : 'border-gray-300 bg-white'
-                      }`}>
-                      {editData.documentsVisibility === 'private' && <div className="w-2 h-2 bg-white rounded-full" />}
-                    </div>
-                    <div className="text-left">
-                      <p className="font-medium text-[#003366]">Riêng tư</p>
-                      <p className="text-xs text-gray-600 whitespace-nowrap">Chỉ bạn có thể xem</p>
-                    </div>
-                  </button>
+                <div className="space-y-2">
+                  <Label htmlFor="coursesOfInterest">Khóa học quan tâm</Label>
+                  <Textarea
+                    id="coursesOfInterest"
+                    name="coursesOfInterest"
+                    value={editData.coursesOfInterest}
+                    onChange={handleEditFormChange}
+                    placeholder="Ví dụ: CO3001, MA1001"
+                    className="min-h-[100px]"
+                  />
                 </div>
+              </>
+            )}
+            {/* Schedule visibility options - displayed as clickable items */}
+            <div className="space-y-2">
+              <Label>Hiển thị thời khóa biểu</Label>
+              <div className="space-y-2 mt-2">
+                {/* Public option for schedule visibility */}
+                <button
+                  onClick={() => handleVisibilityChange('scheduleVisibility', 'public')}
+                  className={`w-full flex items-center gap-2 p-3 rounded-lg border-2 transition-all ${editData.scheduleVisibility === 'public'
+                      ? 'border-[#003366] bg-[#E0F7FF]'
+                      : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                    }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${editData.scheduleVisibility === 'public'
+                      ? 'border-[#003366] bg-[#003366]'
+                      : 'border-gray-300 bg-white'
+                    }`}>
+                    {editData.scheduleVisibility === 'public' && <div className="w-2 h-2 bg-white rounded-full" />}
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-[#003366]">Công khai</p>
+                    <p className="text-xs text-gray-600 whitespace-nowrap">Mọi người có thể xem</p>
+                  </div>
+                </button>
+                {/* Private option for schedule visibility */}
+                <button
+                  onClick={() => handleVisibilityChange('scheduleVisibility', 'private')}
+                  className={`w-full flex items-center gap-2 p-3 rounded-lg border-2 transition-all ${editData.scheduleVisibility === 'private'
+                      ? 'border-[#003366] bg-[#E0F7FF]'
+                      : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                    }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${editData.scheduleVisibility === 'private'
+                      ? 'border-[#003366] bg-[#003366]'
+                      : 'border-gray-300 bg-white'
+                    }`}>
+                    {editData.scheduleVisibility === 'private' && <div className="w-2 h-2 bg-white rounded-full" />}
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-[#003366]">Riêng tư</p>
+                    <p className="text-xs text-gray-600 whitespace-nowrap">Chỉ bạn có thể xem</p>
+                  </div>
+                </button>
               </div>
             </div>
-            <div className="flex gap-2 justify-end pt-4 mt-4">
-              <Button variant="outline" onClick={() => setShowEditDialog(false)}>Hủy</Button>
-              <Button onClick={handleSaveChanges} className="bg-[#003366] hover:bg-[#004488]">Lưu thay đổi</Button>
+            {/* Documents visibility options - displayed as clickable items */}
+            <div className="space-y-2">
+              <Label>Hiển thị tài liệu</Label>
+              <div className="space-y-2 mt-2">
+                {/* Public option for documents visibility */}
+                <button
+                  onClick={() => handleVisibilityChange('documentsVisibility', 'public')}
+                  className={`w-full flex items-center gap-2 p-3 rounded-lg border-2 transition-all ${editData.documentsVisibility === 'public'
+                      ? 'border-[#003366] bg-[#E0F7FF]'
+                      : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                    }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${editData.documentsVisibility === 'public'
+                      ? 'border-[#003366] bg-[#003366]'
+                      : 'border-gray-300 bg-white'
+                    }`}>
+                    {editData.documentsVisibility === 'public' && <div className="w-2 h-2 bg-white rounded-full" />}
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-[#003366]">Công khai</p>
+                    <p className="text-xs text-gray-600 whitespace-nowrap">Mọi người có thể xem</p>
+                  </div>
+                </button>
+                {/* Private option for documents visibility */}
+                <button
+                  onClick={() => handleVisibilityChange('documentsVisibility', 'private')}
+                  className={`w-full flex items-center gap-2 p-3 rounded-lg border-2 transition-all ${editData.documentsVisibility === 'private'
+                      ? 'border-[#003366] bg-[#E0F7FF]'
+                      : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                    }`}
+                >
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${editData.documentsVisibility === 'private'
+                      ? 'border-[#003366] bg-[#003366]'
+                      : 'border-gray-300 bg-white'
+                    }`}>
+                    {editData.documentsVisibility === 'private' && <div className="w-2 h-2 bg-white rounded-full" />}
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-[#003366]">Riêng tư</p>
+                    <p className="text-xs text-gray-600 whitespace-nowrap">Chỉ bạn có thể xem</p>
+                  </div>
+                </button>
+              </div>
             </div>
           </DialogContent>
         {/* </ScrollArea> */}

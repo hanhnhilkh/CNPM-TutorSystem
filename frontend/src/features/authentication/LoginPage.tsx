@@ -3,6 +3,7 @@ import { Button } from '../../components/ui/button';
 import { getAllProfiles } from '../../features/profile/api/profileApi';
 import { useAuth } from '../../context/AuthContext';
 import { User } from '../../types/index';
+
 type LoginPageProps = {
   onLogin: (user: User) => void;
 };
@@ -11,7 +12,6 @@ export function LoginPage({ onLogin }: LoginPageProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const auth = useAuth();
-
 
   const handleLoginAsStudent = async () => {
     setIsLoading(true);

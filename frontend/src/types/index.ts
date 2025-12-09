@@ -1,20 +1,20 @@
 export type UserRole = 'student' | 'tutor' | 'admin' | null;
 
 export type User = {
-  id: string;
-  name: string;
-  email: string;
-  role: 'student' | 'tutor' | 'admin';
-  avatar?: string;
-  department?: string;
-  major?: string;
-  cohort?: string;
-  officeLocation?: string;
-  rating?: number;
-  specialization?: string;
-  publications?: { title: string; link: string; public: boolean }[];
-  scheduleVisibility?: string;
-  documentsVisibility?: string;
+    id: string;
+    name: string;
+    email: string;
+    role: 'student' | 'tutor' | 'admin';
+    avatar?: string;
+    department?: string;
+    major?: string;
+    cohort?: string;
+    officeLocation?: string;
+    rating?: number;
+    specialization?: string;
+    publications?: { title: string; link: string; public: boolean }[];
+    scheduleVisibility?: string;
+    documentsVisibility?: string;
 };
 
 export type Tutor = {

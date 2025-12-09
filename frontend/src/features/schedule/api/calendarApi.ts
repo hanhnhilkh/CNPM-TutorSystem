@@ -1,6 +1,4 @@
-import { CalendarDay, CalendarHour, CalendarSlot, Evaluation } from "../../../types";
-import { addDays, format, parseISO } from 'date-fns';
-import { da, enUS } from 'date-fns/locale';
+import { CalendarDay, CalendarHour, CalendarSlot } from "../../../types/index";
 
 const API_URL = 'http://localhost:3001/api';
 
@@ -72,11 +70,13 @@ const convertSlotToHours = (slot: string): string[] => {
  */
 export const getScheduleForTutor = async (
   tutorId: string,
-  viewerId: string
-): Promise<CalendarDay[] | undefined> => {
+  viewerId: string,
+  viewerRole: 'student' | 'tutor'
+): Promise<CalendarDay[]> => {
   try {
     const tutorProfileRes = await fetch(`${API_URL}/profile/${tutorId}`);
     if (!tutorProfileRes.ok) {
+      // Handle case where tutor profile is not found
       console.warn(`Tutor profile ${tutorId} not found`);
       return [];
     }
@@ -87,8 +87,12 @@ export const getScheduleForTutor = async (
       return [];
     }
 
-    const scheduleRes = await fetch(`${API_URL}/schedule?tutorId=${tutorId}`);
-    const schedule = await scheduleRes.json();
+    const appointmentsRes = await fetch(`${API_URL}/schedule/appointments?tutorId=${tutorId}`);
+    if (!appointmentsRes.ok) {
+      console.warn(`Failed to fetch appointments for tutor ${tutorId}`);
+      return [];
+    }
+  const appointments = await appointmentsRes.json();
 
     console.log('[DEBUG] schedule from API:', schedule);
 
@@ -146,7 +150,7 @@ export const getScheduleForTutor = async (
       return { day: dayInfo.day, engDay: dayInfo.engDay, date: dayInfo.date, hours };
     });
 
-    return calendar;
+  return calendar;
   } catch (error) {
     console.error(`Error fetching tutor schedule for ${tutorId}:`, error);
     return [];
@@ -159,7 +163,12 @@ export const getScheduleForTutor = async (
 export const getScheduleForStudent = async (
   studentId: string
 ): Promise<CalendarDay[]> => {
-  const appointmentsRes = await fetch(`${API_URL}/schedule/appointments?studentId=${studentId}`);
+  try {
+    const appointmentsRes = await fetch(`${API_URL}/schedule/appointments?studentId=${studentId}`);
+    if (!appointmentsRes.ok) {
+      console.warn(`Failed to fetch appointments for student ${studentId}`);
+      return [];
+    }
   const appointments = await appointmentsRes.json();
 
   // Logic to create calendar data remains the same
@@ -201,6 +210,10 @@ export const getScheduleForStudent = async (
   });
 
   return calendar;
+  } catch (error) {
+    console.error(`Error fetching student schedule for ${studentId}:`, error);
+    return [];
+  }
 };
 
 /**

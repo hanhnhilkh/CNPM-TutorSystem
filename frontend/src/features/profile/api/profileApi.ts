@@ -1,11 +1,9 @@
 const BASE = 'http://localhost:3001/api/profile';
 
-
 export async function getAllProfiles() {
   const res = await fetch(`${BASE}`);
   return res.json();
 }
-
 
 export async function getProfileById(id: string) {
   try {
@@ -19,7 +17,6 @@ export async function getProfileById(id: string) {
     console.error(`Error fetching profile ${id}:`, error);
     throw error;
   }
-
 }
 
 export async function updateProfile(id: string, payload: any) {
@@ -27,7 +24,6 @@ export async function updateProfile(id: string, payload: any) {
   // In future, change to PUT /api/profile/:id
   return { ...payload, id };
 }
-
 
 export async function searchUsers(filters: { query?: string; department?: string; role?: string }) {
   // Search through all profiles using filters
@@ -43,21 +39,17 @@ export async function searchUsers(filters: { query?: string; department?: string
     console.error('Search error:', err);
     return [];
   }
-
 }
-
 
 export async function getUserProfile(id: string) {
   return getProfileById(id);
 }
-
 
 export async function updateUserProfile(id: string, payload: any) {
   return updateProfile(id, payload);
 }
 // const API_URL = 'http://localhost:3001/api';
 
- 
 // /**
 //  * Lấy tất cả hồ sơ người dùng.
 //  * @returns Danh sách tất cả hồ sơ người dùng.

@@ -41,7 +41,7 @@ export class SearchService {
             // Provide default empty arrays if properties are missing
             parsed.appointments = parsed.appointments || [];
             parsed.departments = parsed.departments || [];
-            parsed.users = parsed.users || [];
+            parsed.profiles = parsed.profiles || [];
 
             return parsed;
         } catch (error) {
@@ -56,7 +56,7 @@ export class SearchService {
         return db.users.filter(profile =>
             profile.role === 'tutor' &&
             (profile.name.toLowerCase().includes(lowerCaseQuery) ||
-            profile.specialization.toLowerCase().includes(lowerCaseQuery))
+                profile.specialization.toLowerCase().includes(lowerCaseQuery))
         );
     }
 

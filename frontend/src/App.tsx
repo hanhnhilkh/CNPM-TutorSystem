@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { LoginPage } from './features/authentication/LoginPage.tsx';
 import AdminDashboard from './features/dashboard/AdminDashboard.tsx';
 import { StudentDashboard } from './features/dashboard/StudentDashboard.tsx';
+import AdminDashboard from './features/dashboard/AdminDashboard.tsx';
 import { FindTutor } from './features/search/FindTutor.tsx';
 import { BookSession } from './features/booking/BookSession.tsx';
 import { TutorDashboard } from './features/dashboard/TutorDashboard.tsx';
@@ -199,7 +200,7 @@ function App() {
       )}
       {/* Xử lý khi nhấn vào mục "Hồ sơ của tôi" trên sidebar */}
       {currentPage === 'profile' && (userRole === 'student' || userRole === 'tutor') && ( /*error fix: profile page is only for userRole as student | tutor when userRole is admin | student | tutor */
-        <UserProfile profileId={currentUserId} currentUserId={currentUserId} userRole={userRole as 'student' | 'tutor'} onNavigate={handleNavigate} onSelectTutor={handleBookSession} onGoBack={handleGoBack} />
+        <UserProfile profileId={currentUserId} currentUserId={currentUserId} userRole={userRole} onNavigate={handleNavigate} onSelectTutor={handleBookSession} onGoBack={handleGoBack} />
       )}
       {currentPage === 'find-tutor' && (
         <FindTutor onNavigate={handleNavigate} onSelectTutor={handleSelectTutor} />
@@ -217,13 +218,13 @@ function App() {
         <StudentSchedulePage userRole={userRole} onNavigate={handleNavigate} onGoBack={handleGoBack} />
       )}
       {currentPage === 'documents' && (userRole === 'student' || userRole === 'tutor') && ( /*error fix: profile page is only for userRole as student | tutor when userRole is admin | student | tutor */
-        <DocumentsPage userRole={userRole as 'student' | 'tutor'} currentUserId={currentUserId} onNavigate={handleNavigate} onGoBack={handleGoBack} />
+        <DocumentsPage userRole={userRole} currentUserId={currentUserId} onNavigate={handleNavigate} onGoBack={handleGoBack} />
       )}
       {currentPage === 'user-search' && (userRole === 'student' || userRole === 'tutor') && ( /*error fix: profile page is only for userRole as student | tutor when userRole is admin | student | tutor */
-        <UserSearch userRole={userRole as 'student' | 'tutor'} onNavigate={handleNavigate} onSelectUser={handleSelectUser} />
+        <UserSearch userRole={userRole} onNavigate={handleNavigate} onSelectUser={handleSelectUser} />
       )}
       {currentPage === 'profile-view' && viewingProfileId && (userRole === 'student' || userRole === 'tutor') && ( // Sửa onSelectTutor thành handleBookSession  /*error fix: profile page is only for userRole as student | tutor when userRole is admin | student | tutor */
-        <UserProfile profileId={viewingProfileId} currentUserId={currentUserId} userRole={userRole as 'student' | 'tutor'} onNavigate={handleNavigate} onSelectTutor={handleBookSession} onGoBack={handleGoBack} />
+        <UserProfile profileId={viewingProfileId} currentUserId={currentUserId} userRole={userRole} onNavigate={handleNavigate} onSelectTutor={handleBookSession} onGoBack={handleGoBack} />
       )}
       {currentPage === 'book-session' && selectedTutor && (
         <BookSession tutor={selectedTutor} currentUserId={currentUserId} currentUserName="Nguyễn Văn A" onNavigate={handleNavigate} />

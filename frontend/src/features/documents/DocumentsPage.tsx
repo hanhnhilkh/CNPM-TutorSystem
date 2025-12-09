@@ -252,7 +252,7 @@ export function DocumentsPage({ userRole, currentUserId, onNavigate, onGoBack }:
                           <div>
                             <a href={doc.url} className="text-[#003366] font-medium hover:underline">{doc.name}</a>
                           </div>
-                        </div>                      
+                        </div>
                         <div className="flex items-center gap-4">
                           <Select
                             value={doc.visibility}
@@ -294,7 +294,7 @@ export function DocumentsPage({ userRole, currentUserId, onNavigate, onGoBack }:
                               ) : (
                                 <DropdownMenuItem onClick={() => handleTogglePin(doc)}>
                                   <Pin className="w-4 h-4 mr-2" /> Ghim tài liệu
-                                </DropdownMenuItem>                           
+                                </DropdownMenuItem>
                               )}
                               <DropdownMenuItem onClick={() => openDeleteDialog(doc)} className="text-red-600 focus:text-red-600">
                                 <Trash2 className="w-4 h-4 mr-2" /> Xóa tài liệu
@@ -322,13 +322,11 @@ export function DocumentsPage({ userRole, currentUserId, onNavigate, onGoBack }:
           <div className="py-4 space-y-4">
             <div className="p-4 border rounded-md bg-gray-50">
               <p className="font-medium">{fileToUpload?.name}</p>
-              
               <p className="text-sm text-gray-500">{(fileToUpload?.size || 0) / 1024 > 1024 ? `${((fileToUpload?.size || 0) / (1024 * 1024)).toFixed(2)} MB` : `${((fileToUpload?.size || 0) / 1024).toFixed(2)} KB`}</p>
             </div>
             {/* Document visibility options - displayed as clickable items */}
             <div className="space-y-2">
               <Label>Ai có thể xem tài liệu này?</Label>
-              
               <div className="space-y-2 mt-2">
                 {/* Public option for document visibility */}
                 <button
@@ -384,7 +382,6 @@ export function DocumentsPage({ userRole, currentUserId, onNavigate, onGoBack }:
       {/* Delete Confirmation Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
-          
           <DialogHeader>
             <DialogTitle className="text-red-600">Xác nhận xóa</DialogTitle>
             <DialogDescription>

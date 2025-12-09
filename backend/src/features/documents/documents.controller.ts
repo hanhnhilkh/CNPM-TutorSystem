@@ -71,7 +71,7 @@ export const updateDocument = (req: Request, res: Response) => {
             return res.status(400).json({ message: 'Document ID is required' });
         }
 
-    const updates: any = {};
+        const updates: any = {};
         if (visibility) updates.visibility = visibility;
         if (pinned !== undefined) updates.pinned = pinned;
 

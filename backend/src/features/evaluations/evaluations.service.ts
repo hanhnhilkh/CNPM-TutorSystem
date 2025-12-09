@@ -33,15 +33,6 @@ export class EvaluationsService { //(nhi) handle đọc ghi evaluations
         }
     }
 
-    private writeDb(db: Db): void {
-        try {
-            fs.writeFileSync(dbPath, JSON.stringify(db, null, 2), 'utf8');
-        } catch (error) {
-            console.error('Error writing database:', error);
-            throw error;
-        }
-    }
-
     getEvaluationsByTutor(tutorId: string): Evaluation[] {
         const db = this.readDb();
         const formattedTutorId = tutorId.startsWith('tutor-') ? tutorId : `tutor-${tutorId}`;

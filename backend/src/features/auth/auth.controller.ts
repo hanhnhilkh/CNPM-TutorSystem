@@ -10,7 +10,7 @@ const authService = new AuthService();
  */
 export const login = (req: Request, res: Response) => {
     const { email, userId } = req.body;
-
+    
     // Accept either email or userId
     const searchKey = email || userId;
     if (!searchKey) {

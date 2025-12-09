@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 
 const dbPath = path.resolve(__dirname, '../../../db/db.json');
-
 //(NHI) auth service xử lý logic liên quan đến xác thực, đăng nhập, lấy thông tin user
 interface User {
     id: string;
@@ -14,7 +13,7 @@ interface User {
 }
 
 interface Db {
-    users: User[];
+    profiles: User[];
     [key: string]: any;
 }
 
@@ -31,8 +30,8 @@ export class AuthService {
             const parsed = JSON.parse(dbRaw);
 
             // Validate the structure
-            if (!parsed.users || !Array.isArray(parsed.users)) {
-                console.error('Invalid database structure: missing or invalid users array');
+            if (!parsed.profiles || !Array.isArray(parsed.profiles)) {
+                console.error('Invalid database structure: missing or invalid profiles array');
                 throw new Error('Invalid database structure');
             }
 
@@ -50,7 +49,7 @@ export class AuthService {
     login(emailOrId: string): User | undefined {
         const db = this.readDb();
         // Try to find by email first, then by id
-        return db.users.find(user => user.email === emailOrId || user.id === emailOrId);
+        return db.profiles.find(user => user.email === emailOrId || user.id === emailOrId);
     }
 
     /**
@@ -58,6 +57,6 @@ export class AuthService {
      */
     getUserById(userId: string): User | undefined {
         const db = this.readDb();
-        return db.users.find(user => user.id === userId);
+        return db.profiles.find(user => user.id === userId);
     }
 }

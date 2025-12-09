@@ -12,7 +12,7 @@ interface Profile {
 }
 
 interface Db {
-    users: Profile[];
+    profiles: Profile[];
     [key: string]: any;
 }
 
@@ -23,8 +23,8 @@ export class ProfileService {
             const parsed = JSON.parse(dbRaw);
 
             // Validate the structure
-            if (!parsed.users || !Array.isArray(parsed.users)) {
-                console.error('Invalid database structure: missing or invalid users array');
+            if (!parsed.profiles || !Array.isArray(parsed.profiles)) {
+                console.error('Invalid database structure: missing or invalid profiles array');
                 throw new Error('Invalid database structure');
             }
 
@@ -38,8 +38,8 @@ export class ProfileService {
     private writeDb(db: Db): void {
         try {
             // Validate before writing
-            if (!db.users || !Array.isArray(db.users)) {
-                throw new Error('Invalid database structure: users must be an array');
+            if (!db.profiles || !Array.isArray(db.profiles)) {
+                throw new Error('Invalid database structure: profiles must be an array');
             }
 
             // Write to a temporary file first, then rename (atomic operation)
@@ -90,6 +90,7 @@ export class ProfileService {
         console.log('Found profile:', profile);
         return profile;
     }
+
     /**
      * Get all profiles
      */
@@ -129,6 +130,42 @@ export class ProfileService {
         const db = this.readDb();
         const lowerQuery = query.toLowerCase();
         return db.users.filter(p =>
+            p.name.toLowerCase().includes(lowerQuery) ||
+            p.email.toLowerCase().includes(lowerQuery)
+        );
+    }
+
+    /**
+     * Update user profile with new data
+     */
+    updateProfile(userId: string, updates: Partial<Profile>): Profile | undefined {
+        const db = this.readDb();
+        const profileIndex = db.profiles.findIndex(p => p.id === userId);
+
+        if (profileIndex === -1) {
+            console.error(`Profile with ID ${userId} not found`);
+            return undefined;
+        }
+
+        // Merge updates with existing profile
+        db.profiles[profileIndex] = {
+            ...db.profiles[profileIndex],
+            ...updates,
+            id: userId, // Prevent ID from being changed
+        };
+
+        this.writeDb(db);
+        console.log('Profile updated:', db.profiles[profileIndex]);
+        return db.profiles[profileIndex];
+    }
+
+    /**
+     * Search profiles by name or email (for user search feature)
+     */
+    searchProfiles(query: string): Profile[] {
+        const db = this.readDb();
+        const lowerQuery = query.toLowerCase();
+        return db.profiles.filter(p =>
             p.name.toLowerCase().includes(lowerQuery) ||
             p.email.toLowerCase().includes(lowerQuery)
         );

@@ -114,6 +114,7 @@ export class DocumentService {
         this.writeDb(db);
         return newDocument;
     }
+
     /**
      * Update document (e.g., change visibility, pin status)
      */

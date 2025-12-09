@@ -41,6 +41,12 @@ app.use('/api/admin', analyticsRoutes);
 app.use('/api/admin/sync', dataSyncRoutes);
 app.use('/api/admin/database', databaseRoutes);
 
+// (nhi) Global error handler - catch any unhandled errors
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error('[Global Error Handler]:', err);
+  res.status(500).json({ message: 'Internal server error', error: err.message });
+});
+
 // Start the server
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
