@@ -34,8 +34,41 @@ export const DocumentManagement: React.FC = () => {
     const [showActions] = useState(false);
 
     useEffect(() => {
-        fetchDocuments();
-        fetchUsers();
+        const loadData = async () => {
+            setIsLoading(true);
+            // Fetch users first
+            try {
+                const usersResponse = await fetch(`${API_BASE_URL}/users`);
+                if (usersResponse.ok) {
+                    const usersData = await usersResponse.json();
+                    setUsers(usersData);
+
+                    // Then fetch documents and enrich with user names
+                    const docsResponse = await fetch(`${API_BASE_URL}/documents`);
+                    if (docsResponse.ok) {
+                        const docsData = await docsResponse.json();
+                        const docsWithNames = docsData.map((doc: Document) => {
+                            const user = usersData.find((u: any) => u.id === doc.userId);
+                            return {
+                                ...doc,
+                                userName: user?.name || 'Unknown User'
+                            };
+                        });
+                        setAllDocuments(docsWithNames);
+                        setFilteredDocuments(docsWithNames);
+                        console.log('Loaded documents:', docsWithNames);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to fetch data:', error);
+                setAllDocuments([]);
+                setFilteredDocuments([]);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadData();
     }, []);
 
     useEffect(() => {
@@ -44,54 +77,12 @@ export const DocumentManagement: React.FC = () => {
             setFilteredDocuments(allDocuments);
         } else {
             const query = searchQuery.toLowerCase();
-            const filtered = allDocuments.filter(doc => 
+            const filtered = allDocuments.filter(doc =>
                 doc.userName?.toLowerCase().includes(query)
             );
             setFilteredDocuments(filtered);
         }
     }, [searchQuery, allDocuments]);
-
-    const fetchUsers = async () => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/users`);
-            if (response.ok) {
-                const data = await response.json();
-                setUsers(data);
-            }
-        } catch (error) {
-            console.error('Failed to fetch users:', error);
-        }
-    };
-
-    const fetchDocuments = async () => {
-        try {
-            setIsLoading(true);
-            const response = await fetch(`${API_BASE_URL}/documents`);
-            if (response.ok) {
-                const data = await response.json();
-                // Enrich documents with user names
-                const docsWithNames = data.map((doc: Document) => {
-                    const user = users.find(u => u.id === doc.userId);
-                    return {
-                        ...doc,
-                        userName: user?.name || 'Unknown User'
-                    };
-                });
-                setAllDocuments(docsWithNames);
-                setFilteredDocuments(docsWithNames);
-                console.log('Loaded documents:', docsWithNames);
-            } else {
-                setAllDocuments([]);
-                setFilteredDocuments([]);
-            }
-        } catch (error) {
-            console.error('Failed to fetch documents:', error);
-            setAllDocuments([]);
-            setFilteredDocuments([]);
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     const handleDeleteDocument = async (docId: string) => {
         if (!window.confirm('Are you sure you want to delete this document?')) return;
@@ -181,7 +172,7 @@ export const DocumentManagement: React.FC = () => {
             <div className="text-sm text-gray-600">
                 {searchQuery && (
                     <p>
-                        Tìm thấy <strong>{filteredDocuments.length}</strong> tài liệu của 
+                        Tìm thấy <strong>{filteredDocuments.length}</strong> tài liệu của
                         <strong className="text-[#003366]"> {searchQuery}</strong>
                     </p>
                 )}
@@ -214,7 +205,7 @@ export const DocumentManagement: React.FC = () => {
                                 <TableHead className="font-semibold text-gray-700 py-3 px-4">Ngày tải lên</TableHead>
                                 <TableHead className="font-semibold text-gray-700 py-3 px-4">Độ hiển thị</TableHead>
                                 {/* {showActions && ( */}
-                                    <TableHead className="font-semibold text-gray-700 py-3 px-4 text-right">Hành động</TableHead>
+                                <TableHead className="font-semibold text-gray-700 py-3 px-4 text-right">Hành động</TableHead>
                                 {/* )} */}
                             </TableRow>
                         </TableHeader>
